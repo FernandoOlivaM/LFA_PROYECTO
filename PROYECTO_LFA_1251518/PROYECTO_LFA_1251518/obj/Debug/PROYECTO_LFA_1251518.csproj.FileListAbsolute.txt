@@ -1,0 +1,8 @@
+C:\Users\ferol\source\repos\PROYECTO_LFA_1251518\PROYECTO_LFA_1251518\obj\Debug\PROYECTO_LFA_1251518.csprojAssemblyReference.cache
+C:\Users\ferol\source\repos\PROYECTO_LFA_1251518\PROYECTO_LFA_1251518\obj\Debug\PROYECTO_LFA_1251518.Properties.Resources.resources
+C:\Users\ferol\source\repos\PROYECTO_LFA_1251518\PROYECTO_LFA_1251518\obj\Debug\PROYECTO_LFA_1251518.csproj.GenerateResource.cache
+C:\Users\ferol\source\repos\PROYECTO_LFA_1251518\PROYECTO_LFA_1251518\bin\Debug\PROYECTO_LFA_1251518.exe.config
+C:\Users\ferol\source\repos\PROYECTO_LFA_1251518\PROYECTO_LFA_1251518\bin\Debug\PROYECTO_LFA_1251518.exe
+C:\Users\ferol\source\repos\PROYECTO_LFA_1251518\PROYECTO_LFA_1251518\bin\Debug\PROYECTO_LFA_1251518.pdb
+C:\Users\ferol\source\repos\PROYECTO_LFA_1251518\PROYECTO_LFA_1251518\obj\Debug\PROYECTO_LFA_1251518.exe
+C:\Users\ferol\source\repos\PROYECTO_LFA_1251518\PROYECTO_LFA_1251518\obj\Debug\PROYECTO_LFA_1251518.pdb
