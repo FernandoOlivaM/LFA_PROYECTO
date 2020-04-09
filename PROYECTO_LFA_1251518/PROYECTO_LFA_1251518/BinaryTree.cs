@@ -77,6 +77,14 @@
                 return;
             this.Right.inOrder(node);
         }
+        public void postOrder(TraversalTree<T> node)
+        {
+            if (this.Left != null)
+                this.Left.postOrder(node);
+            if (this.Right != null)
+                this.Right.postOrder(node);
+            node((IBinaryTree<T>)this);
+        }
 
     }
 

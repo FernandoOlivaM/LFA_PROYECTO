@@ -12,12 +12,33 @@ namespace PROYECTO_LFA_1251518
         private int simbolCount;
         private List<Simbol> simbolList;
         private BynaryTree<Node> expresionTree;
+        private List<string> simbolStatus;
+        public int simbolQuantity
+        {
+            get{return this.simbolCount;}
+        }
+
+        public List<Simbol> simbolLst
+        {
+            get{return this.simbolList;}
+        }
+
+        public List<string> simbolSts
+        {
+            get{return this.simbolStatus;}
+        }
         public void generate(string regex)
         {
             this.buildQueue(regex);
             this.expresionTree = new BynaryTree<Node>(new Node("."));
             this.expTree.Left = (IBinaryTree<Node>)this.generateExpression(ref this.expresionQueue);
             this.expTree.Right = (IBinaryTree<Node>)this.expresionQueue.Dequeue();
+            this.expTree.postOrder(new TraversalTree<Node>(this.getFirstLast));
+            for (int i = 0; i < this.simbolList.Count; ++i)
+            {
+                if (!this.simbolStatus.Contains(this.simbolList.ToArray()[i].strSimbol))
+                    this.simbolStatus.Add(this.simbolList.ToArray()[i].strSimbol);
+            }
         }
         private void buildQueue(string regex)
         {
@@ -307,6 +328,136 @@ namespace PROYECTO_LFA_1251518
                 }
             }
             return arbolBinarioBaseStack.Pop();
+        }
+        private void getFirstLast(IBinaryTree<Node> tree)
+        {
+            if (tree.Value.Simbol.Equals("|"))
+            {
+                for (int i = 0; i < tree.Left.Value.First.Count; ++i)
+                {
+                    int value = tree.Left.Value.First.ToArray<int>()[i];
+                    if (!tree.Value.First.Contains(value))
+                        tree.Value.First.AddLast(value);
+                }
+                for (int i = 0; i < tree.Right.Value.First.Count; ++i)
+                {
+                    int value = tree.Right.Value.First.ToArray<int>()[i];
+                    if (!tree.Value.First.Contains(value))
+                        tree.Value.First.AddLast(value);
+                }
+                for (int i = 0; i < tree.Left.Value.Last.Count; ++i)
+                {
+                    int value = tree.Left.Value.Last.ToArray<int>()[i];
+                    if (!tree.Value.Last.Contains(value))
+                        tree.Value.Last.AddLast(value);
+                }
+                for (int i = 0; i < tree.Right.Value.Last.Count; ++i)
+                {
+                    int value = tree.Right.Value.Last.ToArray<int>()[i];
+                    if (!tree.Value.Last.Contains(value))
+                        tree.Value.Last.AddLast(value);
+                }
+                tree.Value.Nullable = tree.Right.Value.Nullable || tree.Left.Value.Nullable;
+            }
+            if (tree.Value.Simbol.Equals("."))
+            {
+                if (tree.Left.Value.Nullable)
+                {
+                    for (int i = 0; i < tree.Left.Value.First.Count; ++i)
+                    {
+                        int value = tree.Left.Value.First.ToArray<int>()[i];
+                        if (!tree.Value.First.Contains(value))
+                            tree.Value.First.AddLast(value);
+                    }
+                    for (int i = 0; i < tree.Right.Value.First.Count; ++i)
+                    {
+                        int value = tree.Right.Value.First.ToArray<int>()[i];
+                        if (!tree.Value.First.Contains(value))
+                            tree.Value.First.AddLast(value);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < tree.Left.Value.First.Count; ++i)
+                    {
+                        int value = tree.Left.Value.First.ToArray<int>()[i];
+                        if (!tree.Value.First.Contains(value))
+                            tree.Value.First.AddLast(value);
+                    }
+                }
+                if (tree.Right.Value.Nullable)
+                {
+                    for (int i = 0; i < tree.Left.Value.Last.Count; ++i)
+                    {
+                        int value = tree.Left.Value.Last.ToArray<int>()[i];
+                        if (!tree.Value.Last.Contains(value))
+                            tree.Value.Last.AddLast(value);
+                    }
+                    for (int i = 0; i < tree.Right.Value.Last.Count; ++i)
+                    {
+                        int value = tree.Right.Value.Last.ToArray<int>()[i];
+                        if (!tree.Value.Last.Contains(value))
+                            tree.Value.Last.AddLast(value);
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < tree.Right.Value.Last.Count; ++i)
+                    {
+                        int value = tree.Right.Value.Last.ToArray<int>()[i];
+                        if (!tree.Value.Last.Contains(value))
+                            tree.Value.Last.AddLast(value);
+                    }
+                }
+                tree.Value.Nullable = tree.Right.Value.Nullable && tree.Left.Value.Nullable;
+            }
+            if (tree.Value.Simbol.Equals("*"))
+            {
+                for (int i = 0; i < tree.Left.Value.First.Count; ++i)
+                {
+                    int value = tree.Left.Value.First.ToArray<int>()[i];
+                    if (!tree.Value.First.Contains(value))
+                        tree.Value.First.AddLast(value);
+                }
+                for (int i = 0; i < tree.Left.Value.Last.Count; ++i)
+                {
+                    int value = tree.Left.Value.Last.ToArray<int>()[i];
+                    if (!tree.Value.Last.Contains(value))
+                        tree.Value.Last.AddLast(value);
+                }
+                tree.Value.Nullable = true;
+            }
+            if (tree.Value.Simbol.Equals("+"))
+            {
+                for (int i = 0; i < tree.Left.Value.First.Count; ++i)
+                {
+                    int value = tree.Left.Value.First.ToArray<int>()[i];
+                    if (!tree.Value.First.Contains(value))
+                        tree.Value.First.AddLast(value);
+                }
+                for (int i = 0; i < tree.Left.Value.Last.Count; ++i)
+                {
+                    int value = tree.Left.Value.Last.ToArray<int>()[i];
+                    if (!tree.Value.Last.Contains(value))
+                        tree.Value.Last.AddLast(value);
+                }
+                tree.Value.Nullable = tree.Left.Value.Nullable;
+            }
+            if (!tree.Value.Simbol.Equals("?"))
+                return;
+            for (int i = 0; i < tree.Left.Value.First.Count; ++i)
+            {
+                int value = tree.Left.Value.First.ToArray<int>()[i];
+                if (!tree.Value.First.Contains(value))
+                    tree.Value.First.AddLast(value);
+            }
+            for (int i = 0; i < tree.Left.Value.Last.Count; ++i)
+            {
+                int value = tree.Left.Value.Last.ToArray<int>()[i];
+                if (!tree.Value.Last.Contains(value))
+                    tree.Value.Last.AddLast(value);
+            }
+            tree.Value.Nullable = true;
         }
 
     }
