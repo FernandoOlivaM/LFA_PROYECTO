@@ -17,7 +17,7 @@ namespace PROYECTO_LFA_1251518
         private List<int> tokenList;
         private Queue<string> regex;
         private List<string> actionList;
-
+        private TreeGenerator tree;
 
         public bool correctFile(string[] file)
         {
@@ -25,10 +25,18 @@ namespace PROYECTO_LFA_1251518
             this.checkTokens(file);
             this.checkActions(file);
             this.checkError(file);
+            this.buildTree(this.regex);
             return true;
         }
 
-        
+        public void buildTree(Queue<string> tokens)
+        {
+            var regex = string.Empty;
+            while (tokens.Count > 0)
+                regex = regex + tokens.Dequeue() + " ";
+            this.tree = new TreeGenerator();
+            this.tree.generate(regex);
+        }
         private void checkSets(string[] file)
         {
             this.spectedWord = "SETS";
