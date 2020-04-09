@@ -6,7 +6,8 @@
         IBinaryTree<T> Left { get; set; }
         IBinaryTree<T> Right { get; set; }
         IBinaryTree<T> Parent { get; set; }
-        void inOrder(TraversalTree<T> visitar);
+        void inOrder(TraversalTree<T> node);
+        void postOrder(TraversalTree<T> node);
     }
 
 }

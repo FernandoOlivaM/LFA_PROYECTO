@@ -53,10 +53,19 @@
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Node.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Ranges.cs" />
+    <Compile Include="ScrollablePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Simbol.cs" />
+    <Compile Include="TablesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="TraversalTree.cs" />
+    <Compile Include="TreeGenerator.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
