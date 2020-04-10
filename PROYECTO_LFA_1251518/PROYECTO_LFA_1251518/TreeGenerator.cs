@@ -13,6 +13,14 @@ namespace PROYECTO_LFA_1251518
         private List<Simbol> simbolList;
         private BynaryTree<Node> expresionTree;
         private List<string> simbolStatus;
+        public TreeGenerator()
+        {
+            this.expresionQueue = new Queue<BynaryTree<Node>>();
+            this.simbolList = new List<Simbol>();
+            this.simbolStatus = new List<string>();
+            this.simbolCount = 1;
+        }
+
         public int simbolQuantity
         {
             get{return this.simbolCount;}

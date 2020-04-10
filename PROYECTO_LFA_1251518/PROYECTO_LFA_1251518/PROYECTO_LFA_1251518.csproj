@@ -47,9 +47,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinaryTree.cs" />
+    <Compile Include="DrawCircle.cs" />
     <Compile Include="ErrorMessages.cs" />
     <Compile Include="GrammarChecker.cs" />
     <Compile Include="IBinaryTree.cs" />
+    <Compile Include="DrawConector.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

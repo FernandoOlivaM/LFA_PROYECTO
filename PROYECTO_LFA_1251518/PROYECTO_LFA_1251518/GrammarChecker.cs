@@ -18,7 +18,20 @@ namespace PROYECTO_LFA_1251518
         private Queue<string> regex;
         private List<string> actionList;
         private TreeGenerator tree;
-
+        public GrammarChecker()
+        {
+            this.row = 0;
+            this.column = 0;
+            this.setCount = 0;
+            this.tokenCount = 0;
+            this.actionCount = 0;
+            this.errorCount = 0;
+            this.regex = new Queue<string>();
+            this.actionList = new List<string>();
+            this.setList = new List<string>();
+            this.tokenList = new List<int>();
+            this.ranges = new List<Ranges>();
+        }
         public bool correctFile(string[] file)
         {
             this.checkSets(file);
