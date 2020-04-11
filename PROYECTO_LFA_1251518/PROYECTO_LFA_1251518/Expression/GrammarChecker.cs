@@ -391,16 +391,12 @@ namespace PROYECTO_LFA_1251518
                                 {
                                     this.column++;
                                     string wordRow;
-                                    do
-                                        ;
-                                    while ((wordRow = this.getWord(file)).Trim().Equals(""));
+                                    do { } while ((wordRow = this.getWord(file)).Trim().Equals(""));
                                     if (this.isAction(wordRow.Trim()))
                                     {
                                         this.actionList.Add(wordRow);
                                         string wrd;
-                                        do
-                                            ;
-                                        while ((wrd = this.getWord(file)).Trim().Equals(""));
+                                        do { } while ((wrd = this.getWord(file)).Trim().Equals(""));
                                         if (!wrd.Equals("}"))
                                             throw new Exception("19|" + (object)this.row + "|" + (object)this.column);
                                     }
