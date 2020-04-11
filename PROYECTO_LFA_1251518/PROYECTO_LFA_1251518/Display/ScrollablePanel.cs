@@ -278,7 +278,7 @@ namespace PROYECTO_LFA_1251518
                         this.ScrollHorizontal((object)this, new ScrollEventArgs(this.getScrollEventType(msg.WParam), ScrollablePanel.GetScrollPos(this.Handle, 0)));
                         break;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         break;
                     }
@@ -288,7 +288,7 @@ namespace PROYECTO_LFA_1251518
                         this.ScrollVertical((object)this, new ScrollEventArgs(this.getScrollEventType(msg.WParam), ScrollablePanel.GetScrollPos(this.Handle, 1)));
                         break;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         break;
                     }
@@ -325,7 +325,7 @@ namespace PROYECTO_LFA_1251518
                         this.ScrollMouseWheel((object)this, new MouseEventArgs(button, 1, x, y, delta));
                         break;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         break;
                     }

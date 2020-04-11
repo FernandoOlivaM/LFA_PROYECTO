@@ -47,7 +47,6 @@ namespace PROYECTO_LFA_1251518
             this.btnOpen.Text = "Examinar";
             this.btnOpen.UseVisualStyleBackColor = true;
             this.btnOpen.Click += new EventHandler(this.btnOpen_Click);
-            this.openFile.Filter = "Archivo de texto|*.txt";
             this.AutoScaleDimensions = new SizeF(6f, 13f);
             this.AutoScaleMode = AutoScaleMode.Font;
             this.ClientSize = new Size(260, 100);
@@ -79,8 +78,8 @@ namespace PROYECTO_LFA_1251518
             }
             catch (Exception ex)
             {
-                string[] errorArray = ex.Message.Split('|');
-                if (errorArray.Length == 3)
+                string[] error = ex.Message.Split('|');
+                if (error.Length == 3)
                 {                    
                     int num = (int)MessageBox.Show(ErrorMessages.Message(ex.Message), "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }

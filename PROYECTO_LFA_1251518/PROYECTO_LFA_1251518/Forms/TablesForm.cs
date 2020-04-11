@@ -176,12 +176,12 @@ namespace PROYECTO_LFA_1251518
             new DrawCircle(tree.Value.Simbol, x, y).Draw(this.panel1.CreateGraphics());
             if (tree.Right != null)
             {
-                new Conector(x + 15, y + 15, x + interval + 25, y + 65).Draw(this.panel1.CreateGraphics());
+                new DrawConector(x + 15, y + 15, x + interval + 25, y + 65).Draw(this.panel1.CreateGraphics());
                 this.drawTree(tree.Right, x + interval, y + 70, 2 * interval / 3);
             }
             if (tree.Left != null)
             {
-                new Conector(x + 15, y + 15, x - interval + 25, y + 65).Draw(this.panel1.CreateGraphics());
+                new DrawConector(x + 15, y + 15, x - interval + 25, y + 65).Draw(this.panel1.CreateGraphics());
                 this.drawTree(tree.Left, x - interval, y + 70, 2 * interval / 3);
             }
         }

@@ -21,62 +21,30 @@
 
         public T Value
         {
-            get
-            {
-                return this.value;
-            }
-            set
-            {
-                this.value = value;
-            }
+            get{ return this.value;}
+            set{ this.value = value;}
         }
 
         public IBinaryTree<T> Left
         {
-            get
-            {
-                return this.left;
-            }
-            set
-            {
-                this.left = value;
-            }
+            get{ return this.left;}
+            set{ this.left = value;}
         }
 
         public IBinaryTree<T> Right
         {
-            get
-            {
-                return this.right;
-            }
-            set
-            {
-                this.right = value;
-            }
+            get{ return this.right;}
+            set{ this.right = value;}
         }
 
         public IBinaryTree<T> Parent
         {
-            get
-            {
-                return this.parent;
-            }
-            set
-            {
-                this.parent = value;
-            }
+            get{ return this.parent;}
+            set{ this.parent = value;}
         }
 
 
-        public void inOrder(TraversalTree<T> node)
-        {
-            if (this.Left != null)
-                this.Left.inOrder(node);
-            node((IBinaryTree<T>)this);
-            if (this.Right == null)
-                return;
-            this.Right.inOrder(node);
-        }
+
         public void postOrder(TraversalTree<T> node)
         {
             if (this.Left != null)
