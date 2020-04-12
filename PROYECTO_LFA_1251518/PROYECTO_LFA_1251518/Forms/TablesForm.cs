@@ -18,7 +18,7 @@ namespace PROYECTO_LFA_1251518
         private Panel pnlTable;
         private DataGridView dgvFollow;
         private DataGridViewTextBoxColumn clmnNumber, clmnFollow, clmnSimbol, clmnFirst, clmnLast, clmnNullable, clmnStatus;
-        private DataGridView dgvTable, dgvStatus;
+        private DataGridView dgvTableFL, dgvStatus;
         private Timer show;
         private ScrollablePanel panelScrollable;
         private NumericUpDown numericUpDown5, numericUpDown6;
@@ -50,23 +50,23 @@ namespace PROYECTO_LFA_1251518
 
         private void fillTableFirstLast(IBinaryTree<Node> tree)
         {
-            this.dgvTable.Rows.Add();
-            this.dgvTable.Rows[this.rows].Cells[0].Value = (object)tree.Value.Simbol;
+            this.dgvTableFL.Rows.Add();
+            this.dgvTableFL.Rows[this.rows].Cells[0].Value = (object)tree.Value.Simbol;
             var value = string.Empty;
             for (int i = 0; i < tree.Value.First.Count; i++)
             {
                 int n = tree.Value.First.ToArray<int>()[i];
                 value = value + (object)n + ", ";
             }
-            this.dgvTable.Rows[this.rows].Cells[1].Value = (object)value;
+            this.dgvTableFL.Rows[this.rows].Cells[1].Value = (object)value;
             var value2 = string.Empty;
             for (int i = 0; i < tree.Value.Last.Count; i++)
             {
                 int n = tree.Value.Last.ToArray<int>()[i];
                 value2 = value2 + (object)n + ", ";
             }
-            this.dgvTable.Rows[this.rows].Cells[2].Value = (object)value2;
-            this.dgvTable.Rows[this.rows].Cells[3].Value = (object)tree.Value.Nullable.ToString();
+            this.dgvTableFL.Rows[this.rows].Cells[2].Value = (object)value2;
+            this.dgvTableFL.Rows[this.rows].Cells[3].Value = (object)tree.Value.Nullable.ToString();
             this.rows++;
         }
 
@@ -296,7 +296,7 @@ namespace PROYECTO_LFA_1251518
             this.clmnFollow = new DataGridViewTextBoxColumn();
             this.numericUpDown6 = new NumericUpDown();
             this.numericUpDown5 = new NumericUpDown();
-            this.dgvTable = new DataGridView();
+            this.dgvTableFL = new DataGridView();
             this.clmnSimbol = new DataGridViewTextBoxColumn();
             this.clmnFirst = new DataGridViewTextBoxColumn();
             this.clmnLast = new DataGridViewTextBoxColumn();
@@ -314,7 +314,7 @@ namespace PROYECTO_LFA_1251518
             ((ISupportInitialize)this.dgvFollow).BeginInit();
             this.numericUpDown6.BeginInit();
             this.numericUpDown5.BeginInit();
-            ((ISupportInitialize)this.dgvTable).BeginInit();
+            ((ISupportInitialize)this.dgvTableFL).BeginInit();
             this.panelScrollable.SuspendLayout();
             this.SuspendLayout();
             this.lblRegex.Location = new Point(1, 1);
@@ -346,7 +346,7 @@ namespace PROYECTO_LFA_1251518
             this.pnlTable.Controls.Add((Control)this.dgvFollow);
             this.pnlTable.Controls.Add((Control)this.numericUpDown6);
             this.pnlTable.Controls.Add((Control)this.numericUpDown5);
-            this.pnlTable.Controls.Add((Control)this.dgvTable);
+            this.pnlTable.Controls.Add((Control)this.dgvTableFL);
             this.pnlTable.Location = new Point(1, 25);
             this.pnlTable.Name = "pnlTabla";
             this.pnlTable.Size = new Size(1050, 190);
@@ -390,15 +390,15 @@ namespace PROYECTO_LFA_1251518
             this.numericUpDown5.Size = new Size(48, 20);
             this.numericUpDown5.TabIndex = 20;
             this.numericUpDown5.ValueChanged += new EventHandler(this.numericUpDown5_ValueChanged);
-            this.dgvTable.AllowUserToAddRows = false;
-            this.dgvTable.AllowUserToDeleteRows = false;
-            this.dgvTable.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvTable.Columns.AddRange((DataGridViewColumn)this.clmnSimbol, (DataGridViewColumn)this.clmnFirst, (DataGridViewColumn)this.clmnLast, (DataGridViewColumn)this.clmnNullable);
-            this.dgvTable.Location = new Point(0, 20);
-            this.dgvTable.Name = "dgvTabla";
-            this.dgvTable.ReadOnly = true;
-            this.dgvTable.Size = new Size(460, 165);
-            this.dgvTable.TabIndex = 0;
+            this.dgvTableFL.AllowUserToAddRows = false;
+            this.dgvTableFL.AllowUserToDeleteRows = false;
+            this.dgvTableFL.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvTableFL.Columns.AddRange((DataGridViewColumn)this.clmnSimbol, (DataGridViewColumn)this.clmnFirst, (DataGridViewColumn)this.clmnLast, (DataGridViewColumn)this.clmnNullable);
+            this.dgvTableFL.Location = new Point(0, 20);
+            this.dgvTableFL.Name = "dgvTabla";
+            this.dgvTableFL.ReadOnly = true;
+            this.dgvTableFL.Size = new Size(460, 165);
+            this.dgvTableFL.TabIndex = 0;
             this.clmnSimbol.HeaderText = "Simbolo";
             this.clmnSimbol.Name = "clmnSimbolo";
             this.clmnSimbol.ReadOnly = true;
@@ -459,7 +459,7 @@ namespace PROYECTO_LFA_1251518
             ((ISupportInitialize)this.dgvFollow).EndInit();
             this.numericUpDown6.EndInit();
             this.numericUpDown5.EndInit();
-            ((ISupportInitialize)this.dgvTable).EndInit();
+            ((ISupportInitialize)this.dgvTableFL).EndInit();
             this.panelScrollable.ResumeLayout(false);
             this.panelScrollable.PerformLayout();
             this.ResumeLayout(false);
