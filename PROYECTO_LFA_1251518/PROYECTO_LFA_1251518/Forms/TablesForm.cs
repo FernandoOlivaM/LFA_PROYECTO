@@ -13,9 +13,8 @@ namespace PROYECTO_LFA_1251518
         private IContainer components = (IContainer)null;
         private IBinaryTree<Node> expTree;
         private TreeGenerator treeGenerator;
-        private int width, height, rows, acceptationStatus;
+        private int width, height, rows;
         private List<int>[] listFollows;
-        private GrammarChecker grammarCheck;
         private Panel pnlTable;
         private DataGridView dgvFollow;
         private DataGridViewTextBoxColumn clmnNumber, clmnFollow, clmnSimbol, clmnFirst, clmnLast, clmnNullable, clmnStatus;
@@ -26,12 +25,10 @@ namespace PROYECTO_LFA_1251518
         private Panel panel1;
         private Label lblTree, lblRegex, lblFLTitle, lblFollowTitle, lblStatusTitle;
 
-        public TablesForm(GrammarChecker grammar, TreeGenerator generator, IBinaryTree<Node> tree, int simbols, string regex)
+        public TablesForm(TreeGenerator generator, IBinaryTree<Node> tree, int simbols, string regex)
         {
             this.InitializeComponent();
-            this.treeGenerator = generator;
-            this.grammarCheck = grammar;
-            
+            this.treeGenerator = generator;            
             this.lblRegex.Text = "Expresión Obtenida: " + regex;
             this.expTree = tree;
             this.rows = 0;
@@ -51,6 +48,73 @@ namespace PROYECTO_LFA_1251518
             this.generateStatusTable();
         }
 
+        private void fillTableFirstLast(IBinaryTree<Node> tree)
+        {
+            this.dgvTable.Rows.Add();
+            this.dgvTable.Rows[this.rows].Cells[0].Value = (object)tree.Value.Simbol;
+            var value = string.Empty;
+            for (int i = 0; i < tree.Value.First.Count; i++)
+            {
+                int n = tree.Value.First.ToArray<int>()[i];
+                value = value + (object)n + ", ";
+            }
+            this.dgvTable.Rows[this.rows].Cells[1].Value = (object)value;
+            var value2 = string.Empty;
+            for (int i = 0; i < tree.Value.Last.Count; i++)
+            {
+                int n = tree.Value.Last.ToArray<int>()[i];
+                value2 = value2 + (object)n + ", ";
+            }
+            this.dgvTable.Rows[this.rows].Cells[2].Value = (object)value2;
+            this.dgvTable.Rows[this.rows].Cells[3].Value = (object)tree.Value.Nullable.ToString();
+            this.rows++;
+        }
+
+        private void fillFollow(IBinaryTree<Node> tree)
+        {
+            if (tree.Value.Simbol.Equals("."))
+            {
+                for (int i = 0; i < tree.Left.Value.Last.Count; i++)
+                {
+                    int n = tree.Left.Value.Last.ToArray<int>()[i] - 1;
+                    for (int j = 0; j < tree.Right.Value.First.Count; j++)
+                    {
+                        int m = tree.Right.Value.First.ToArray<int>()[j];
+                        if (!this.listFollows[n].Contains(m))
+                            this.listFollows[n].Add(m);
+                    }
+                }
+            }
+            else
+            {
+                if (!"*+".Contains(tree.Value.Simbol))
+                    return;
+                for (int i = 0; i < tree.Left.Value.Last.Count; i++)
+                {
+                    int n = tree.Left.Value.Last.ToArray<int>()[i] - 1;
+                    for (int j = 0; j < tree.Left.Value.First.Count; j++)
+                    {
+                        int m = tree.Left.Value.First.ToArray<int>()[j];
+                        if (!this.listFollows[n].Contains(m))
+                            this.listFollows[n].Add(m);
+                    }
+                }
+            }
+        }
+
+        private void fillFollowTable()
+        {
+            for (int i = 0; i < this.listFollows.Length; i++)
+            {
+                var value = string.Empty;
+                this.listFollows[i].Sort();
+                for (int j = 0; j < this.listFollows[i].Count; j++)
+                    value = value + this.listFollows[i].ToArray()[j].ToString() + ", ";
+                this.dgvFollow.Rows[i].Cells[0].Value = (object)(i + 1).ToString();
+                this.dgvFollow.Rows[i].Cells[1].Value = (object)value;
+            }
+        }
+
         public void generateStatusTable()
         {
             for (int i = 0; i < this.treeGenerator.simbolSts.Count; i++)
@@ -68,7 +132,6 @@ namespace PROYECTO_LFA_1251518
             Simbol simbol = new Simbol();
             simbol.strSimbol = "#";
             simbol.intNumber = this.treeGenerator.simbolLst.Count + 1;
-            this.acceptationStatus = this.treeGenerator.simbolLst.Count + 1;
             this.treeGenerator.simbolLst.Add(simbol);
             bool continueFlg = true;
             while (continueFlg)
@@ -151,73 +214,6 @@ namespace PROYECTO_LFA_1251518
             {
                 new DrawConector(x + 15, y + 15, x - interval + 25, y + 65).Draw(this.panel1.CreateGraphics());
                 this.drawTree(tree.Left, x - interval, y + 70, 2 * interval / 3);
-            }
-        }
-
-        private void fillTableFirstLast(IBinaryTree<Node> tree)
-        {
-            this.dgvTable.Rows.Add();
-            this.dgvTable.Rows[this.rows].Cells[0].Value = (object)tree.Value.Simbol;
-            var value = string.Empty;
-            for (int i = 0; i < tree.Value.First.Count; i++)
-            {
-                int n= tree.Value.First.ToArray<int>()[i];
-                value = value + (object)n + ", ";
-            }
-            this.dgvTable.Rows[this.rows].Cells[1].Value = (object)value;
-            var value2 = string.Empty;
-            for (int i = 0; i < tree.Value.Last.Count; i++)
-            {
-                int n = tree.Value.Last.ToArray<int>()[i];
-                value2 = value2 + (object)n + ", ";
-            }
-            this.dgvTable.Rows[this.rows].Cells[2].Value = (object)value2;
-            this.dgvTable.Rows[this.rows].Cells[3].Value = (object)tree.Value.Nullable.ToString();
-            this.rows++;
-        }
-
-        private void fillFollow(IBinaryTree<Node> tree)
-        {
-            if (tree.Value.Simbol.Equals("."))
-            {
-                for (int i = 0; i < tree.Left.Value.Last.Count; i++)
-                {
-                    int n = tree.Left.Value.Last.ToArray<int>()[i] - 1;
-                    for (int j = 0; j < tree.Right.Value.First.Count; j++)
-                    {
-                        int m = tree.Right.Value.First.ToArray<int>()[j];
-                        if (!this.listFollows[n].Contains(m))
-                            this.listFollows[n].Add(m);
-                    }
-                }
-            }
-            else
-            {
-                if (!"*+".Contains(tree.Value.Simbol))
-                    return;
-                for (int i = 0; i < tree.Left.Value.Last.Count; i++)
-                {
-                    int n = tree.Left.Value.Last.ToArray<int>()[i] - 1;
-                    for (int j = 0; j < tree.Left.Value.First.Count; j++)
-                    {
-                        int m = tree.Left.Value.First.ToArray<int>()[j];
-                        if (!this.listFollows[n].Contains(m))
-                            this.listFollows[n].Add(m);
-                    }
-                }
-            }
-        }
-
-        private void fillFollowTable()
-        {
-            for (int i = 0; i < this.listFollows.Length; i++)
-            {
-                var value = string.Empty;
-                this.listFollows[i].Sort();
-                for (int j = 0; j < this.listFollows[i].Count; j++)
-                    value = value + this.listFollows[i].ToArray()[j].ToString() + ", ";
-                this.dgvFollow.Rows[i].Cells[0].Value = (object)(i + 1).ToString();
-                this.dgvFollow.Rows[i].Cells[1].Value = (object)value;
             }
         }
 
