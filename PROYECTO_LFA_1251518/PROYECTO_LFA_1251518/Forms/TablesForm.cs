@@ -51,37 +51,6 @@ namespace PROYECTO_LFA_1251518
             this.generateStatusTable();
         }
 
-        private bool inRanges(string simbol)
-        {
-            foreach (Ranges range in this.grammarCheck.ranges)
-            {
-                if (range.simbol.Equals(simbol))
-                    return true;
-            }
-            return false;
-        }
-
-        private bool isAcceptationStatus(string status)
-        {
-            char[] chArray = new char[1] { ',' };
-            foreach (var str2 in status.Split(chArray))
-            {
-                if (this.acceptationStatus == Convert.ToInt32(str2))
-                    return true;
-            }
-            return false;
-        }
-
-        private int searchStatus(string status)
-        {
-            for (int i = 0; i < this.dgvStatus.Rows.Count; i++)
-            {
-                if (status.Equals(this.dgvStatus.Rows[i].Cells[0].Value.ToString()))
-                    return i;
-            }
-            return -1;
-        }
-
         public void generateStatusTable()
         {
             for (int i = 0; i < this.treeGenerator.simbolSts.Count; i++)
