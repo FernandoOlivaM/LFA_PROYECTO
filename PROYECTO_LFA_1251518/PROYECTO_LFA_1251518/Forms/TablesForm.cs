@@ -13,27 +13,23 @@ namespace PROYECTO_LFA_1251518
         private IContainer components = (IContainer)null;
         private IBinaryTree<Node> expTree;
         private TreeGenerator treeGenerator;
-        private int width, height, rows, acceptationStatus;
+        private int width, height, rows;
         private List<int>[] listFollows;
-        private GrammarChecker grammarCheck;
         private Panel pnlTable;
         private DataGridView dgvFollow;
-        private DataGridViewTextBoxColumn clmnNumber, clmnFollow, clmnSimbolo, clmnFirst, clmnLast, clmnNullable;
-        private DataGridView dgvTable, dgvStatus;
+        private DataGridViewTextBoxColumn clmnNumber, clmnFollow, clmnSimbol, clmnFirst, clmnLast, clmnNullable, clmnStatus;
+        private DataGridView dgvTableFL, dgvStatus;
         private Timer show;
         private ScrollablePanel panelScrollable;
         private NumericUpDown numericUpDown5, numericUpDown6;
         private Panel panel1;
-        private Label lblTree, lblRegex;
-        private DataGridViewTextBoxColumn Column1;
+        private Label lblTree, lblRegex, lblFLTitle, lblFollowTitle, lblStatusTitle;
 
-        public TablesForm(GrammarChecker grammar, TreeGenerator generator, IBinaryTree<Node> tree, int simbols, string regex)
+        public TablesForm(TreeGenerator generator, IBinaryTree<Node> tree, int simbols, string regex)
         {
             this.InitializeComponent();
-            this.treeGenerator = generator;
-            this.grammarCheck = grammar;
-            this.lblTree.Text = "Representación Gráfica del Árbol de la Expresión Regular:";
-            this.lblRegex.Text = "Expresión Obtenida:\r\n" + regex;
+            this.treeGenerator = generator;            
+            this.lblRegex.Text = "Expresión Obtenida: " + regex;
             this.expTree = tree;
             this.rows = 0;
             this.width = simbols * 300;
@@ -46,41 +42,77 @@ namespace PROYECTO_LFA_1251518
                 this.dgvFollow.Rows.Add();
             }
             this.dgvStatus.Rows.Add();
-            this.expTree.postOrder(new TraversalTree<Node>(this.fillTable));
+            this.expTree.postOrder(new TraversalTree<Node>(this.fillTableFirstLast));
             this.expTree.postOrder(new TraversalTree<Node>(this.fillFollow));
             this.fillFollowTable();
             this.generateStatusTable();
         }
 
-        private bool inRanges(string simbol)
+        private void fillTableFirstLast(IBinaryTree<Node> tree)
         {
-            foreach (Ranges range in this.grammarCheck.ranges)
+            this.dgvTableFL.Rows.Add();
+            this.dgvTableFL.Rows[this.rows].Cells[0].Value = (object)tree.Value.Simbol;
+            var value = string.Empty;
+            for (int i = 0; i < tree.Value.First.Count; i++)
             {
-                if (range.simbol.Equals(simbol))
-                    return true;
+                int n = tree.Value.First.ToArray<int>()[i];
+                value = value + (object)n + ", ";
             }
-            return false;
+            this.dgvTableFL.Rows[this.rows].Cells[1].Value = (object)value;
+            var value2 = string.Empty;
+            for (int i = 0; i < tree.Value.Last.Count; i++)
+            {
+                int n = tree.Value.Last.ToArray<int>()[i];
+                value2 = value2 + (object)n + ", ";
+            }
+            this.dgvTableFL.Rows[this.rows].Cells[2].Value = (object)value2;
+            this.dgvTableFL.Rows[this.rows].Cells[3].Value = (object)tree.Value.Nullable.ToString();
+            this.rows++;
         }
 
-        private bool isAcceptationStatus(string status)
+        private void fillFollow(IBinaryTree<Node> tree)
         {
-            char[] chArray = new char[1] { ',' };
-            foreach (var str2 in status.Split(chArray))
+            if (tree.Value.Simbol.Equals("."))
             {
-                if (this.acceptationStatus == Convert.ToInt32(str2))
-                    return true;
+                for (int i = 0; i < tree.Left.Value.Last.Count; i++)
+                {
+                    int n = tree.Left.Value.Last.ToArray<int>()[i] - 1;
+                    for (int j = 0; j < tree.Right.Value.First.Count; j++)
+                    {
+                        int m = tree.Right.Value.First.ToArray<int>()[j];
+                        if (!this.listFollows[n].Contains(m))
+                            this.listFollows[n].Add(m);
+                    }
+                }
             }
-            return false;
+            else
+            {
+                if (!"*+".Contains(tree.Value.Simbol))
+                    return;
+                for (int i = 0; i < tree.Left.Value.Last.Count; i++)
+                {
+                    int n = tree.Left.Value.Last.ToArray<int>()[i] - 1;
+                    for (int j = 0; j < tree.Left.Value.First.Count; j++)
+                    {
+                        int m = tree.Left.Value.First.ToArray<int>()[j];
+                        if (!this.listFollows[n].Contains(m))
+                            this.listFollows[n].Add(m);
+                    }
+                }
+            }
         }
 
-        private int searchStatus(string status)
+        private void fillFollowTable()
         {
-            for (int i = 0; i < this.dgvStatus.Rows.Count; i++)
+            for (int i = 0; i < this.listFollows.Length; i++)
             {
-                if (status.Equals(this.dgvStatus.Rows[i].Cells[0].Value.ToString()))
-                    return i;
+                var value = string.Empty;
+                this.listFollows[i].Sort();
+                for (int j = 0; j < this.listFollows[i].Count; j++)
+                    value = value + this.listFollows[i].ToArray()[j].ToString() + ", ";
+                this.dgvFollow.Rows[i].Cells[0].Value = (object)(i + 1).ToString();
+                this.dgvFollow.Rows[i].Cells[1].Value = (object)value;
             }
-            return -1;
         }
 
         public void generateStatusTable()
@@ -100,7 +132,6 @@ namespace PROYECTO_LFA_1251518
             Simbol simbol = new Simbol();
             simbol.strSimbol = "#";
             simbol.intNumber = this.treeGenerator.simbolLst.Count + 1;
-            this.acceptationStatus = this.treeGenerator.simbolLst.Count + 1;
             this.treeGenerator.simbolLst.Add(simbol);
             bool continueFlg = true;
             while (continueFlg)
@@ -186,73 +217,6 @@ namespace PROYECTO_LFA_1251518
             }
         }
 
-        private void fillTable(IBinaryTree<Node> tree)
-        {
-            this.dgvTable.Rows.Add();
-            this.dgvTable.Rows[this.rows].Cells[0].Value = (object)tree.Value.Simbol;
-            var value = string.Empty;
-            for (int i = 0; i < tree.Value.First.Count; i++)
-            {
-                int n= tree.Value.First.ToArray<int>()[i];
-                value = value + (object)n + ", ";
-            }
-            this.dgvTable.Rows[this.rows].Cells[1].Value = (object)value;
-            var value2 = string.Empty;
-            for (int i = 0; i < tree.Value.Last.Count; i++)
-            {
-                int n = tree.Value.Last.ToArray<int>()[i];
-                value2 = value2 + (object)n + ", ";
-            }
-            this.dgvTable.Rows[this.rows].Cells[2].Value = (object)value2;
-            this.dgvTable.Rows[this.rows].Cells[3].Value = (object)tree.Value.Nullable.ToString();
-            this.rows++;
-        }
-
-        private void fillFollow(IBinaryTree<Node> tree)
-        {
-            if (tree.Value.Simbol.Equals("."))
-            {
-                for (int i = 0; i < tree.Left.Value.Last.Count; i++)
-                {
-                    int n = tree.Left.Value.Last.ToArray<int>()[i] - 1;
-                    for (int j = 0; j < tree.Right.Value.First.Count; j++)
-                    {
-                        int m = tree.Right.Value.First.ToArray<int>()[j];
-                        if (!this.listFollows[n].Contains(m))
-                            this.listFollows[n].Add(m);
-                    }
-                }
-            }
-            else
-            {
-                if (!"*+".Contains(tree.Value.Simbol))
-                    return;
-                for (int i = 0; i < tree.Left.Value.Last.Count; i++)
-                {
-                    int n = tree.Left.Value.Last.ToArray<int>()[i] - 1;
-                    for (int j = 0; j < tree.Left.Value.First.Count; j++)
-                    {
-                        int m = tree.Left.Value.First.ToArray<int>()[j];
-                        if (!this.listFollows[n].Contains(m))
-                            this.listFollows[n].Add(m);
-                    }
-                }
-            }
-        }
-
-        private void fillFollowTable()
-        {
-            for (int i = 0; i < this.listFollows.Length; i++)
-            {
-                var value = string.Empty;
-                this.listFollows[i].Sort();
-                for (int j = 0; j < this.listFollows[i].Count; j++)
-                    value = value + this.listFollows[i].ToArray()[j].ToString() + ", ";
-                this.dgvFollow.Rows[i].Cells[0].Value = (object)(i + 1).ToString();
-                this.dgvFollow.Rows[i].Cells[1].Value = (object)value;
-            }
-        }
-
         private void TablesForm_Activated(object sender, EventArgs e)
         {
             this.show.Enabled = true;
@@ -326,14 +290,14 @@ namespace PROYECTO_LFA_1251518
             this.components = (IContainer)new Container();
             this.pnlTable = new Panel();
             this.dgvStatus = new DataGridView();
-            this.Column1 = new DataGridViewTextBoxColumn();
+            this.clmnStatus = new DataGridViewTextBoxColumn();
             this.dgvFollow = new DataGridView();
             this.clmnNumber = new DataGridViewTextBoxColumn();
             this.clmnFollow = new DataGridViewTextBoxColumn();
             this.numericUpDown6 = new NumericUpDown();
             this.numericUpDown5 = new NumericUpDown();
-            this.dgvTable = new DataGridView();
-            this.clmnSimbolo = new DataGridViewTextBoxColumn();
+            this.dgvTableFL = new DataGridView();
+            this.clmnSimbol = new DataGridViewTextBoxColumn();
             this.clmnFirst = new DataGridViewTextBoxColumn();
             this.clmnLast = new DataGridViewTextBoxColumn();
             this.clmnNullable = new DataGridViewTextBoxColumn();
@@ -341,13 +305,16 @@ namespace PROYECTO_LFA_1251518
             this.panelScrollable = new ScrollablePanel();
             this.lblTree = new Label();
             this.lblRegex = new Label();
+            this.lblFLTitle = new Label();
+            this.lblFollowTitle = new Label();
+            this.lblStatusTitle = new Label();
             this.panel1 = new Panel();
             this.pnlTable.SuspendLayout();
             ((ISupportInitialize)this.dgvStatus).BeginInit();
             ((ISupportInitialize)this.dgvFollow).BeginInit();
             this.numericUpDown6.BeginInit();
             this.numericUpDown5.BeginInit();
-            ((ISupportInitialize)this.dgvTable).BeginInit();
+            ((ISupportInitialize)this.dgvTableFL).BeginInit();
             this.panelScrollable.SuspendLayout();
             this.SuspendLayout();
             this.lblRegex.Location = new Point(1, 1);
@@ -356,37 +323,54 @@ namespace PROYECTO_LFA_1251518
             this.lblRegex.ForeColor = Color.DarkRed;
             this.lblRegex.Name = "lblRegex";
             this.lblRegex.Size = new Size(75, 24);
-
+            this.lblFLTitle.Location = new Point(0, 0);
+            this.lblFLTitle.AutoSize = true;
+            this.lblFLTitle.Font = new Font("Arial", 12f, FontStyle.Bold, GraphicsUnit.Point, (byte)0);
+            this.lblFLTitle.ForeColor = Color.DarkRed;
+            this.lblFLTitle.Text = "Tabla First, Last y Nullable";
+            this.lblFollowTitle.Location = new Point(470, 0);
+            this.lblFollowTitle.AutoSize = true;
+            this.lblFollowTitle.Font = new Font("Arial", 12f, FontStyle.Bold, GraphicsUnit.Point, (byte)0);
+            this.lblFollowTitle.ForeColor = Color.DarkRed;
+            this.lblFollowTitle.Text = "Tabla Follow";
+            this.lblStatusTitle.Location = new Point(740, 0);
+            this.lblStatusTitle.AutoSize = true;
+            this.lblStatusTitle.Font = new Font("Arial", 12f, FontStyle.Bold, GraphicsUnit.Point, (byte)0);
+            this.lblStatusTitle.ForeColor = Color.DarkRed;
+            this.lblStatusTitle.Text = " Tabla Estados";
             this.pnlTable.BackColor = SystemColors.Control;
+            this.pnlTable.Controls.Add((Control)this.lblFLTitle);
+            this.pnlTable.Controls.Add((Control)this.lblFollowTitle);
+            this.pnlTable.Controls.Add((Control)this.lblStatusTitle);
             this.pnlTable.Controls.Add((Control)this.dgvStatus);
             this.pnlTable.Controls.Add((Control)this.dgvFollow);
             this.pnlTable.Controls.Add((Control)this.numericUpDown6);
             this.pnlTable.Controls.Add((Control)this.numericUpDown5);
-            this.pnlTable.Controls.Add((Control)this.dgvTable);
-            this.pnlTable.Location = new Point(1, 50);
+            this.pnlTable.Controls.Add((Control)this.dgvTableFL);
+            this.pnlTable.Location = new Point(1, 25);
             this.pnlTable.Name = "pnlTabla";
-            this.pnlTable.Size = new Size(1050, 175);
+            this.pnlTable.Size = new Size(1050, 190);
             this.pnlTable.TabIndex = 2;
             this.dgvStatus.AllowUserToAddRows = false;
             this.dgvStatus.AllowUserToDeleteRows = false;
             this.dgvStatus.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvStatus.Columns.AddRange((DataGridViewColumn)this.Column1);
-            this.dgvStatus.Location = new Point(726, 4);
+            this.dgvStatus.Columns.AddRange((DataGridViewColumn)this.clmnStatus);
+            this.dgvStatus.Location = new Point(740, 20);
             this.dgvStatus.Name = "dgvEstados";
             this.dgvStatus.ReadOnly = true;
-            this.dgvStatus.Size = new Size(303, 160);
+            this.dgvStatus.Size = new Size(300, 165);
             this.dgvStatus.TabIndex = 22;
-            this.Column1.HeaderText = "Estado";
-            this.Column1.Name = "Column1";
-            this.Column1.ReadOnly = true;
+            this.clmnStatus.HeaderText = "Estado";
+            this.clmnStatus.Name = "clmStatus";
+            this.clmnStatus.ReadOnly = true;
             this.dgvFollow.AllowUserToAddRows = false;
             this.dgvFollow.AllowUserToDeleteRows = false;
             this.dgvFollow.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvFollow.Columns.AddRange((DataGridViewColumn)this.clmnNumber, (DataGridViewColumn)this.clmnFollow);
-            this.dgvFollow.Location = new Point(456, 0);
+            this.dgvFollow.Location = new Point(470, 20);
             this.dgvFollow.Name = "dgvFollow";
             this.dgvFollow.ReadOnly = true;
-            this.dgvFollow.Size = new Size(263, 165);
+            this.dgvFollow.Size = new Size(265, 165);
             this.dgvFollow.TabIndex = 1;
             this.clmnNumber.HeaderText = "Simbolo";
             this.clmnNumber.Name = "clmnNumeroSimbolo";
@@ -406,18 +390,18 @@ namespace PROYECTO_LFA_1251518
             this.numericUpDown5.Size = new Size(48, 20);
             this.numericUpDown5.TabIndex = 20;
             this.numericUpDown5.ValueChanged += new EventHandler(this.numericUpDown5_ValueChanged);
-            this.dgvTable.AllowUserToAddRows = false;
-            this.dgvTable.AllowUserToDeleteRows = false;
-            this.dgvTable.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvTable.Columns.AddRange((DataGridViewColumn)this.clmnSimbolo, (DataGridViewColumn)this.clmnFirst, (DataGridViewColumn)this.clmnLast, (DataGridViewColumn)this.clmnNullable);
-            this.dgvTable.Location = new Point(0, 0);
-            this.dgvTable.Name = "dgvTabla";
-            this.dgvTable.ReadOnly = true;
-            this.dgvTable.Size = new Size(450, 165);
-            this.dgvTable.TabIndex = 0;
-            this.clmnSimbolo.HeaderText = "Simbolo";
-            this.clmnSimbolo.Name = "clmnSimbolo";
-            this.clmnSimbolo.ReadOnly = true;
+            this.dgvTableFL.AllowUserToAddRows = false;
+            this.dgvTableFL.AllowUserToDeleteRows = false;
+            this.dgvTableFL.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvTableFL.Columns.AddRange((DataGridViewColumn)this.clmnSimbol, (DataGridViewColumn)this.clmnFirst, (DataGridViewColumn)this.clmnLast, (DataGridViewColumn)this.clmnNullable);
+            this.dgvTableFL.Location = new Point(0, 20);
+            this.dgvTableFL.Name = "dgvTabla";
+            this.dgvTableFL.ReadOnly = true;
+            this.dgvTableFL.Size = new Size(460, 165);
+            this.dgvTableFL.TabIndex = 0;
+            this.clmnSimbol.HeaderText = "Simbolo";
+            this.clmnSimbol.Name = "clmnSimbolo";
+            this.clmnSimbol.ReadOnly = true;
             this.clmnFirst.HeaderText = "First";
             this.clmnFirst.Name = "clmnFirst";
             this.clmnFirst.ReadOnly = true;
@@ -449,6 +433,7 @@ namespace PROYECTO_LFA_1251518
             this.panelScrollable.ScrollHorizontal += new ScrollEventHandler(this.panel1_ScrollHorizontal);
             this.panelScrollable.ScrollVertical += new ScrollEventHandler(this.panel1_ScrollVertical);
             this.lblTree.AutoSize = true;
+            this.lblTree.Text = "Representación Gráfica del Árbol de la Expresión Regular:";
             this.lblTree.Font = new Font("Arial", 15.75f, FontStyle.Bold, GraphicsUnit.Point, (byte)0);
             this.lblTree.ForeColor = Color.DarkRed;
             this.lblTree.Location = new Point(9, 6);
@@ -474,7 +459,7 @@ namespace PROYECTO_LFA_1251518
             ((ISupportInitialize)this.dgvFollow).EndInit();
             this.numericUpDown6.EndInit();
             this.numericUpDown5.EndInit();
-            ((ISupportInitialize)this.dgvTable).EndInit();
+            ((ISupportInitialize)this.dgvTableFL).EndInit();
             this.panelScrollable.ResumeLayout(false);
             this.panelScrollable.PerformLayout();
             this.ResumeLayout(false);

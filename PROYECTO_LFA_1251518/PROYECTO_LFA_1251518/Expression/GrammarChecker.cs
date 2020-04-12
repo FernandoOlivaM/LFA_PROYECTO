@@ -49,7 +49,7 @@ namespace PROYECTO_LFA_1251518
                 regex = regex + tokens.Dequeue() + " ";
             this.tree = new TreeGenerator();
             this.tree.generate(regex);
-            int num = (int)new TablesForm(this, this.tree, this.tree.expTree, this.tree.simbolQuantity, regex).ShowDialog();
+            int num = (int)new TablesForm(this.tree, this.tree.expTree, this.tree.simbolQuantity, regex).ShowDialog();
 
         }
         private void checkSets(string[] file)
@@ -391,16 +391,12 @@ namespace PROYECTO_LFA_1251518
                                 {
                                     this.column++;
                                     string wordRow;
-                                    do
-                                        ;
-                                    while ((wordRow = this.getWord(file)).Trim().Equals(""));
+                                    do { } while ((wordRow = this.getWord(file)).Trim().Equals(""));
                                     if (this.isAction(wordRow.Trim()))
                                     {
                                         this.actionList.Add(wordRow);
                                         string wrd;
-                                        do
-                                            ;
-                                        while ((wrd = this.getWord(file)).Trim().Equals(""));
+                                        do { } while ((wrd = this.getWord(file)).Trim().Equals(""));
                                         if (!wrd.Equals("}"))
                                             throw new Exception("19|" + (object)this.row + "|" + (object)this.column);
                                     }
