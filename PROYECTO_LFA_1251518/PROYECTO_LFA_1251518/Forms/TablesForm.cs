@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PROYECTO_LFA_1251518.Automat;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -24,11 +25,13 @@ namespace PROYECTO_LFA_1251518
         private NumericUpDown numericUpDown5, numericUpDown6;
         private Panel panel1;
         private Label lblTree, lblRegex, lblFLTitle, lblFollowTitle, lblStatusTitle;
+        private List<AutomatStatus> automat;
+        private int acceptationStatus;
 
         public TablesForm(TreeGenerator generator, IBinaryTree<Node> tree, int simbols, string regex)
         {
             this.InitializeComponent();
-            this.treeGenerator = generator;            
+            this.treeGenerator = generator;
             this.lblRegex.Text = "Expresión Obtenida: " + regex;
             this.expTree = tree;
             this.rows = 0;
@@ -46,8 +49,44 @@ namespace PROYECTO_LFA_1251518
             this.expTree.postOrder(new TraversalTree<Node>(this.fillFollow));
             this.fillFollowTable();
             this.generateStatusTable();
+            this.generateAutomat();
         }
-
+        private void generateAutomat()
+        {
+            for (int i = 0; i < this.dgvStatus.Rows.Count; i++)
+            {
+                AutomatStatus status = new AutomatStatus();
+                status.CurrentStatus = i;
+                status.Acceptation = this.isAcceptationStatus(this.dgvStatus.Rows[i].Cells[0].Value.ToString());
+                for (int index2 = 1; index2 < this.dgvStatus.Columns.Count; ++index2)
+                {
+                    string headerText = this.dgvStatus.Columns[index2].HeaderText;
+                    string estado_buscado = this.dgvStatus.Rows[i].Cells[index2].Value.ToString();
+                    if (!estado_buscado.Equals(" null "))
+                        status.TransitionsList.Add(new Transition(headerText, this.buscarEstado(estado_buscado)));
+                }
+                this.automat.Add(status);
+            }
+        }
+        private bool isAcceptationStatus(string receivedStatus)
+        {
+            char[] statusValues = new char[1] { ',' };
+            foreach (string item in receivedStatus.Split(statusValues))
+            {
+                if (this.acceptationStatus == Convert.ToInt32(item))
+                    return true;
+            }
+            return false;
+        }
+        private int buscarEstado(string receivedStatus)
+        {
+            for (int i = 0; i < this.dgvStatus.Rows.Count; i++)
+            {
+                if (receivedStatus.Equals(this.dgvStatus.Rows[i].Cells[0].Value.ToString()))
+                    return i;
+            }
+            return -1;
+        }
         private void fillTableFirstLast(IBinaryTree<Node> tree)
         {
             this.dgvTableFL.Rows.Add();
@@ -379,13 +418,13 @@ namespace PROYECTO_LFA_1251518
             this.clmnFollow.Name = "clmnFollow";
             this.clmnFollow.ReadOnly = true;
             this.numericUpDown6.Location = new Point(651, 108);
-            this.numericUpDown6.Maximum = new Decimal(new int[4]{10000,0,0,0});
+            this.numericUpDown6.Maximum = new Decimal(new int[4] { 10000, 0, 0, 0 });
             this.numericUpDown6.Name = "numericUpDown6";
             this.numericUpDown6.Size = new Size(48, 20);
             this.numericUpDown6.TabIndex = 21;
             this.numericUpDown6.ValueChanged += new EventHandler(this.numericUpDown6_ValueChanged);
             this.numericUpDown5.Location = new Point(651, 82);
-            this.numericUpDown5.Maximum = new Decimal(new int[4]{10000,0,0,0});
+            this.numericUpDown5.Maximum = new Decimal(new int[4] { 10000, 0, 0, 0 });
             this.numericUpDown5.Name = "numericUpDown5";
             this.numericUpDown5.Size = new Size(48, 20);
             this.numericUpDown5.TabIndex = 20;
