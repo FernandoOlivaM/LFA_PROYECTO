@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutomatStatus.cs" />
+    <Compile Include="Generator.cs" />
     <Compile Include="Transition.cs" />
     <Compile Include="Tree\BinaryTree.cs" />
     <Compile Include="Display\DrawCircle.cs" />

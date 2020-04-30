@@ -53,6 +53,33 @@ namespace PROYECTO_LFA_1251518
             this.generateStatusTable();
             this.generateAutomat();
         }
+        private void btnGenerate_Click(object sender, EventArgs e)
+        {
+            var path = string.Empty;
+            using (var fldrDlg = new FolderBrowserDialog())
+            {
+                if (fldrDlg.ShowDialog() == DialogResult.OK)
+                {
+                    path = fldrDlg.SelectedPath + "\\evaluar.cs";
+                }
+            }
+
+            using (var writeStream = new FileStream(path, FileMode.OpenOrCreate))
+            {
+                using (var writer = new BinaryWriter(writeStream))
+                {
+                    writer.Write(System.Text.Encoding.Unicode.GetBytes(this.codeGenerator()));
+                }
+            }
+        }
+        private string codeGenerator()
+        {
+            var content = "";
+            foreach (AutomatStatus auto in this.automat)
+                content = content + "case " + (object)auto.current + ": { \r\n} break; \r\n";
+            return Generator.generate(content);
+        }
+
         private void generateAutomat()
         {
             for (int i = 0; i < this.dgvStatus.Rows.Count; i++)
@@ -383,7 +410,7 @@ namespace PROYECTO_LFA_1251518
             this.btnGenerate.Size = new Size(130, 22);
             this.btnGenerate.Text = "Generar Programa";
             this.btnGenerate.UseVisualStyleBackColor = true;
-            //this.button1.Click += new EventHandler(this.button1_Click);
+            this.btnGenerate.Click += new EventHandler(this.btnGenerate_Click);
             this.Controls.Add((Control)this.btnGenerate);
 
             ((ISupportInitialize)this.dgvStatus).BeginInit();
