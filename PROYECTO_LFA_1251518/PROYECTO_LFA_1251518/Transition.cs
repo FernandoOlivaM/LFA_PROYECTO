@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PROYECTO_LFA_1251518.Automat
+namespace PROYECTO_LFA_1251518
 {
     public class Transition
     {
         private string simbol;
         private int status;
 
-        public Transition(string receivedStatus, int receivedSimbol)
+        public Transition(string strSimbol, int intStatus)
         {
-            this.Simbol = receivedStatus;
-            this.Status = receivedSimbol;
+            this.Simbol = strSimbol;
+            this.Status = intStatus;
         }
 
         public string Simbol
@@ -41,4 +41,5 @@ namespace PROYECTO_LFA_1251518.Automat
             }
         }
     }
+
 }

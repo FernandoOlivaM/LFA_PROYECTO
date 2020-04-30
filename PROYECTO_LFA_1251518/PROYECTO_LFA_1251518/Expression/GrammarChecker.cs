@@ -49,7 +49,7 @@ namespace PROYECTO_LFA_1251518
                 regex = regex + tokens.Dequeue() + " ";
             this.tree = new TreeGenerator();
             this.tree.generate(regex);
-            int num = (int)new TablesForm(this.tree, this.tree.expTree, this.tree.simbolQuantity, regex).ShowDialog();
+            int num = (int)new TablesForm(this, this.tree, this.tree.expTree, this.tree.simbolQuantity, regex).ShowDialog();
 
         }
         private void checkSets(string[] file)

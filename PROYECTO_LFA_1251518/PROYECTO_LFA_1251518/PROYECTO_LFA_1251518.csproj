@@ -46,8 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Automat\AutomatStatus.cs" />
-    <Compile Include="Automat\Transition.cs" />
+    <Compile Include="AutomatStatus.cs" />
+    <Compile Include="Transition.cs" />
     <Compile Include="Tree\BinaryTree.cs" />
     <Compile Include="Display\DrawCircle.cs" />
     <Compile Include="Display\ErrorMessages.cs" />

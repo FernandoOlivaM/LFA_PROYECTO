@@ -1,5 +1,4 @@
-﻿using PROYECTO_LFA_1251518.Automat;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -14,7 +13,7 @@ namespace PROYECTO_LFA_1251518
         private IContainer components = (IContainer)null;
         private IBinaryTree<Node> expTree;
         private TreeGenerator treeGenerator;
-        private int width, height, rows;
+        private int width, height, rows, acceptationStatus;
         private List<int>[] listFollows;
         private Panel pnlTable;
         private DataGridView dgvFollow;
@@ -25,13 +24,16 @@ namespace PROYECTO_LFA_1251518
         private NumericUpDown numericUpDown5, numericUpDown6;
         private Panel panel1;
         private Label lblTree, lblRegex, lblFLTitle, lblFollowTitle, lblStatusTitle;
+        private GrammarChecker grammar;
         private List<AutomatStatus> automat;
-        private int acceptationStatus;
+        private Button btnGenerate;
 
-        public TablesForm(TreeGenerator generator, IBinaryTree<Node> tree, int simbols, string regex)
+        public TablesForm(GrammarChecker grammarReceived,TreeGenerator generator, IBinaryTree<Node> tree, int simbols, string regex)
         {
             this.InitializeComponent();
             this.treeGenerator = generator;
+            this.grammar = grammarReceived;
+            this.automat = new List<AutomatStatus>();
             this.lblRegex.Text = "Expresión Obtenida: " + regex;
             this.expTree = tree;
             this.rows = 0;
@@ -55,38 +57,62 @@ namespace PROYECTO_LFA_1251518
         {
             for (int i = 0; i < this.dgvStatus.Rows.Count; i++)
             {
-                AutomatStatus status = new AutomatStatus();
-                status.CurrentStatus = i;
-                status.Acceptation = this.isAcceptationStatus(this.dgvStatus.Rows[i].Cells[0].Value.ToString());
-                for (int index2 = 1; index2 < this.dgvStatus.Columns.Count; ++index2)
+                AutomatStatus Status = new AutomatStatus();
+                Status.current = i;
+                Status.acceptation = this.isAcceptationStatus(this.dgvStatus.Rows[i].Cells[0].Value.ToString());
+                for (int j = 1; j < this.dgvStatus.Columns.Count; j++)
                 {
-                    string headerText = this.dgvStatus.Columns[index2].HeaderText;
-                    string estado_buscado = this.dgvStatus.Rows[i].Cells[index2].Value.ToString();
-                    if (!estado_buscado.Equals(" null "))
-                        status.TransitionsList.Add(new Transition(headerText, this.buscarEstado(estado_buscado)));
+                    var header = this.dgvStatus.Columns[j].HeaderText;
+                    var statusToFind = this.dgvStatus.Rows[i].Cells[j].Value.ToString();
+                    if (!statusToFind.Equals(" null "))
+                        Status.transitionsList.Add(new Transition(header, this.findStatus(statusToFind)));
                 }
-                this.automat.Add(status);
+                this.automat.Add(Status);
+            }
+            foreach (Simbol simbolList in this.treeGenerator.simbolLst)
+            {
+                Ranges range = new Ranges();
+                if (!this.existsInRanges(simbolList.strSimbol) && !simbolList.strSimbol.Contains("#"))
+                {
+                    range.simbol = simbolList.strSimbol;
+                    this.grammar.isBasic(simbolList.strSimbol, range, false, false);
+                    this.grammar.ranges.Add(range);
+                }
             }
         }
-        private bool isAcceptationStatus(string receivedStatus)
+
+        private bool existsInRanges(string simbol)
         {
-            char[] statusValues = new char[1] { ',' };
-            foreach (string item in receivedStatus.Split(statusValues))
+            foreach (Ranges range in this.grammar.ranges)
+            {
+                if (range.simbol.Equals(simbol))
+                    return true;
+            }
+            return false;
+        }
+
+        private bool isAcceptationStatus(string status)
+        {
+            char[] chArray = new char[1] { ',' };
+            foreach (var item in status.Split(chArray))
             {
                 if (this.acceptationStatus == Convert.ToInt32(item))
                     return true;
             }
             return false;
         }
-        private int buscarEstado(string receivedStatus)
+
+        private int findStatus(string status)
         {
             for (int i = 0; i < this.dgvStatus.Rows.Count; i++)
             {
-                if (receivedStatus.Equals(this.dgvStatus.Rows[i].Cells[0].Value.ToString()))
+                if (status.Equals(this.dgvStatus.Rows[i].Cells[0].Value.ToString()))
                     return i;
             }
             return -1;
         }
+
+
         private void fillTableFirstLast(IBinaryTree<Node> tree)
         {
             this.dgvTableFL.Rows.Add();
@@ -172,6 +198,7 @@ namespace PROYECTO_LFA_1251518
             simbol.strSimbol = "#";
             simbol.intNumber = this.treeGenerator.simbolLst.Count + 1;
             this.treeGenerator.simbolLst.Add(simbol);
+            this.acceptationStatus = this.treeGenerator.simbolLst.Count + 1;
             bool continueFlg = true;
             while (continueFlg)
             {
@@ -326,6 +353,7 @@ namespace PROYECTO_LFA_1251518
 
         private void InitializeComponent()
         {
+           
             this.components = (IContainer)new Container();
             this.pnlTable = new Panel();
             this.dgvStatus = new DataGridView();
@@ -349,6 +377,15 @@ namespace PROYECTO_LFA_1251518
             this.lblStatusTitle = new Label();
             this.panel1 = new Panel();
             this.pnlTable.SuspendLayout();
+
+            this.btnGenerate = new Button(); this.btnGenerate.Location = new Point(900, 0);
+            this.btnGenerate.Name = "btnGenerate";
+            this.btnGenerate.Size = new Size(130, 22);
+            this.btnGenerate.Text = "Generar Programa";
+            this.btnGenerate.UseVisualStyleBackColor = true;
+            //this.button1.Click += new EventHandler(this.button1_Click);
+            this.Controls.Add((Control)this.btnGenerate);
+
             ((ISupportInitialize)this.dgvStatus).BeginInit();
             ((ISupportInitialize)this.dgvFollow).BeginInit();
             this.numericUpDown6.BeginInit();
