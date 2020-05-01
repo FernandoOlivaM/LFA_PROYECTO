@@ -91,25 +91,35 @@ namespace PROYECTO_LFA_1251518
                     var status = item.Status;
                     auxContent += "transitions.Add(new Transition("+ Convert.ToChar(34)+simbol + Convert.ToChar(34) + ","+status+ "));\r\n";
                 }
-                auxContent += "foreach (var item in transitions)\r\n{\r\nif (item.Simbol.Replace(" + Convert.ToChar(34) + "'" + Convert.ToChar(34) + "," + Convert.ToChar(34) + Convert.ToChar(34)+ ") == token)";
-                auxContent += "\r\n{\r\nestado = item.Status - 1;\r\ntkn.Add(token);\r\n}\r\nelse if (buscarEnSets(token) == item.Simbol.Replace("+ Convert.ToChar(34) + "'" + Convert.ToChar(34) + "," + Convert.ToChar(34) + Convert.ToChar(34) + "))";
-                auxContent += "\r\n{\r\nestado = item.Status - 1;\r\ntkn.Add(buscarEnSets(token));\r\n}\r\n}\r\n";
-                content = content + "case " + (object)auto.current + ": { "+auxContent+"\r\n} break; \r\n";
+                auxContent += "foreach (var item in transitions)\r\n{\r\n";
+                auxContent += "if (item.Simbol.Replace(" + Convert.ToChar(34) + "'" + Convert.ToChar(34) + "," + Convert.ToChar(34) + Convert.ToChar(34) + ") == token){";
+                auxContent += "estado = item.Status;\r\ntkn.Add(token);\r\naceptado = acceptation;\r\nenc = true;\r\nbreak;\r\n}\r\n}\r\nif (enc)\r\nbreak;\r\nelse\r\n{\r\nforeach (var item in transitions)\r\n{\r\n";
+                auxContent += "if (item.Simbol.Replace(" + Convert.ToChar(34) + "'" + Convert.ToChar(34) + "," + Convert.ToChar(34) + Convert.ToChar(34) + ") == buscarEnSets(token)){";
+                auxContent += "estado = item.Status;\r\ntkn.Add(buscarEnSets(token));\r\naceptado = acceptation;\r\nbreak;\r\n}\r\n else if (buscarEnSets(token) == " + Convert.ToChar(34) + Convert.ToChar(34) + ")\r\n {\r\naceptado = false;\r\nbreak;\r\n}\r\nelse { aceptado = false; }\r\n}\r\n";
+                content = content + "case " + (object)auto.current + ": { "+auxContent+"\r\n} break; \r\n}\r\n";
 
             }
             return Generator.generate(content,dictionary);
         }
         private string generateFunction() 
         {
+            
             var function = "public string buscarEnSets(string token)\r\n{\r\nforeach (var item in diccionarioSets)\r\n{\r\n";
-            function += "var aux = item.Value.Replace(" + Convert.ToChar(34) + "'" + Convert.ToChar(34) + ", " + Convert.ToChar(34) + Convert.ToChar(34) + ").Replace(" + Convert.ToChar(34) + ".." + Convert.ToChar(34) + ", " + Convert.ToChar(34) + "-" + Convert.ToChar(34) + "); ";
-            function += "\r\nstring[] aux2 = aux.Split('+');\r\nfor (int i = 0; i < aux2.Count(); i++)\r\n{\r\n";
-            function += "if (aux2[i].Contains(" + Convert.ToChar(34) + "-" + Convert.ToChar(34) + "))\r\n{\r\nint min = aux2[i][0];\r\nint max = aux2[i][2]; ";
-            function += "if((int)Convert.ToChar(token) > min-1 && (int)Convert.ToChar(token) < max+1)\r\n{\r\nvar value = diccionarioSets.FirstOrDefault(x => x.Value == item.Value).Key;\r\nreturn value;\r\n}\r\n}\r\n";
-            function += "else if (aux2[i].Length == 1)\r\n{\r\nif ((int)Convert.ToChar(token) == Convert.ToChar(aux2[i]))\r\n{\r\nvar value = diccionarioSets.FirstOrDefault(x => x.Value == item.Value).Key;\r\n return value;\r\n}\r\n}\r\n}\r\n";
-            function += "}\r\nreturn " + Convert.ToChar(34) + Convert.ToChar(34) + ";\r\n}\r\n";
+            function += "var aux = string.Empty;\r\nif (item.Value.Contains(" + Convert.ToChar(34) + "CHR"+ Convert.ToChar(34) + "))\r\n{\r\n";
+            function += "aux = item.Value.Replace("+ Convert.ToChar(34)+".." + Convert.ToChar(34) + ", " + Convert.ToChar(34)+" - " + Convert.ToChar(34)+").Replace("+ Convert.ToChar(34)+"CHR" + Convert.ToChar(34)+", " + Convert.ToChar(34) + Convert.ToChar(34) + ").Replace(" + Convert.ToChar(34)+ "(" + Convert.ToChar(34) + ", "+ Convert.ToChar(34) + Convert.ToChar(34) + ").Replace(" + Convert.ToChar(34)+")" + Convert.ToChar(34) +", "+ Convert.ToChar(34) + Convert.ToChar(34) + ");";
+            function += "\r\n}\r\nelse\r\n{\r\naux = item.Value.Replace(" + Convert.ToChar(34) + "'" + Convert.ToChar(34) + ", " + Convert.ToChar(34)+ Convert.ToChar(34) +").Replace(" + Convert.ToChar(34) + ".." + Convert.ToChar(34) + "," + Convert.ToChar(34) + "-" + Convert.ToChar(34)+");";
+            function += "\r\n}\r\nstring[] aux2 = aux.Split('+');\r\nfor (int i = 0; i < aux2.Count(); i++){\r\n   if (aux2[i].Contains("+ Convert.ToChar(34)+ "-" + Convert.ToChar(34) + ")) ";
+            function += "\r\n{\r\n var min = aux2[i][0];\r\nvar max = aux2[i][2];\r\nif ((int)Convert.ToChar(token) > min - 1 && (int)Convert.ToChar(token) < max + 1){\r\nvar value = diccionarioSets.FirstOrDefault(x => x.Value == item.Value).Key;\r\nreturn value;\r\n}\r\n";
+            function += "else if (aux2[i].Length == 1){\r\nif ((int)Convert.ToChar(token) == Convert.ToChar(aux2[i]))\r\n{\r\nvar value = diccionarioSets.FirstOrDefault(x => x.Value == item.Value).Key;\r\nreturn value;\r\n}\r\n}\r\n}\r\n}\r\n}\r\nreturn "+ Convert.ToChar(34)+ Convert.ToChar(34)+";\r\n}\r\n";
+            function += "\r\n\r\npublic string buscar(string texto)\r\n{\r\nbool rechazado = true;\r\nDictionary<string, int> diccionarioFinal = new Dictionary<string, int>();\r\nvar value = string.Empty;\r\nstring[] tokens = texto.Split(' '); \r\n";
+            function += "for (int i = 0; i < tokens.Count(); i++)\r\n{\r\nforeach (var item in diccionarioTokensActions){\r\nvar aux = item.Value;\r\n";
+            function += "if (item.Value.Replace("+ Convert.ToChar(34) +"'" + Convert.ToChar(34) +", " + Convert.ToChar(34) + Convert.ToChar(34) + ").Replace(" + Convert.ToChar(34) +" " + Convert.ToChar(34) +"," + Convert.ToChar(34)+ Convert.ToChar(34)+ ") == tokens[i])";
+            function += "\r\n{\r\nif (!diccionarioFinal.ContainsKey((tokens[i])))\r\ndiccionarioFinal.Add(tokens[i], item.Key);\r\n rechazado = false;\r\nbreak;\r\n}\r\n}\r\nif (!rechazado)\r\n{\r\nforeach (var item in diccionarioTokensActions)\r\n{\r\nif (tokens[i].Length == 1 && item.Value.Contains(buscarEnSets(tokens[i])))\r\n{\r\n";
+            function += "if (!diccionarioFinal.ContainsKey((tokens[i])))\r\ndiccionarioFinal.Add(tokens[i], item.Key);\r\nbreak;\r\n}\r\n}\r\n}\r\n}";
+            function += "\r\nforeach (var item in diccionarioFinal)\r\n{\r\nvalue += item.Key + " + Convert.ToChar(34) +"="+ Convert.ToChar(34) + " + item.Value + " + Convert.ToChar(34) + "enter" + Convert.ToChar(34) +";\r\n}\r\nreturn value;\r\n}\r\n";
             return function;
         }
+
         private string generateDictionarys()
         {
 

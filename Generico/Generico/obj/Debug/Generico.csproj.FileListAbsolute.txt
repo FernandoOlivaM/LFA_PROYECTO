@@ -1,0 +1,16 @@
+C:\Users\ferol\source\repos\Generico\Generico\bin\Debug\Generico.exe.config
+C:\Users\ferol\source\repos\Generico\Generico\bin\Debug\Generico.exe
+C:\Users\ferol\source\repos\Generico\Generico\bin\Debug\Generico.pdb
+C:\Users\ferol\source\repos\Generico\Generico\obj\Debug\Generico.csprojAssemblyReference.cache
+C:\Users\ferol\source\repos\Generico\Generico\obj\Debug\Generico.Properties.Resources.resources
+C:\Users\ferol\source\repos\Generico\Generico\obj\Debug\Generico.csproj.GenerateResource.cache
+C:\Users\ferol\source\repos\Generico\Generico\obj\Debug\Generico.exe
+C:\Users\ferol\source\repos\Generico\Generico\obj\Debug\Generico.pdb
+C:\Users\ferol\OneDrive\Documentos\2020\LENGUAJES\LFA_PROYECTO\Generico\Generico\bin\Debug\Generico.exe.config
+C:\Users\ferol\OneDrive\Documentos\2020\LENGUAJES\LFA_PROYECTO\Generico\Generico\bin\Debug\Generico.exe
+C:\Users\ferol\OneDrive\Documentos\2020\LENGUAJES\LFA_PROYECTO\Generico\Generico\bin\Debug\Generico.pdb
+C:\Users\ferol\OneDrive\Documentos\2020\LENGUAJES\LFA_PROYECTO\Generico\Generico\obj\Debug\Generico.csprojAssemblyReference.cache
+C:\Users\ferol\OneDrive\Documentos\2020\LENGUAJES\LFA_PROYECTO\Generico\Generico\obj\Debug\Generico.Properties.Resources.resources
+C:\Users\ferol\OneDrive\Documentos\2020\LENGUAJES\LFA_PROYECTO\Generico\Generico\obj\Debug\Generico.csproj.GenerateResource.cache
+C:\Users\ferol\OneDrive\Documentos\2020\LENGUAJES\LFA_PROYECTO\Generico\Generico\obj\Debug\Generico.exe
+C:\Users\ferol\OneDrive\Documentos\2020\LENGUAJES\LFA_PROYECTO\Generico\Generico\obj\Debug\Generico.pdb
