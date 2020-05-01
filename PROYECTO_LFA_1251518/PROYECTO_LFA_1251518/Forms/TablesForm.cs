@@ -13,7 +13,7 @@ namespace PROYECTO_LFA_1251518
         private IContainer components = (IContainer)null;
         private IBinaryTree<Node> expTree;
         private TreeGenerator treeGenerator;
-        private int width, height, rows, acceptationStatus;
+        private int width, height, rows, acceptationStatus=0;
         private List<int>[] listFollows;
         private Panel pnlTable;
         private DataGridView dgvFollow;
@@ -64,7 +64,7 @@ namespace PROYECTO_LFA_1251518
                 }
             }
 
-            using (var writeStream = new FileStream(path, FileMode.OpenOrCreate))
+            using (var writeStream = new FileStream(path, FileMode.Truncate))
             {
                 using (var writer = new BinaryWriter(writeStream))
                 {
@@ -74,12 +74,64 @@ namespace PROYECTO_LFA_1251518
         }
         private string codeGenerator()
         {
-            var content = "";
-            foreach (AutomatStatus auto in this.automat)
-                content = content + "case " + (object)auto.current + ": { \r\n} break; \r\n";
-            return Generator.generate(content);
-        }
+            var content = string.Empty;
+            var dictionary = generateDictionarys();
+            AutomatStatus estado = new AutomatStatus();
+            
 
+            var automata = string.Empty;
+
+            foreach (AutomatStatus auto in this.automat)
+            {
+                estado.acceptation = auto.acceptation;
+                estado.current = auto.current;
+                estado.token = auto.token;
+                foreach (var item in auto.transitionsList)
+                {
+                    estado.transitionsList.Add(new Transition(item.Simbol, item.Status));
+                }
+                //automat.Add(estado);
+                var transitions = new List<Transition>();
+                transitions.Add(new Transition("sim", 2));
+                var con = string.Empty;
+                con = "bool acceptation =" + Convert.ToString(auto.acceptation).ToLower() + ";\r\naceptado=acceptation;\r\n";
+                con += "int current =" + Convert.ToString(auto.current)+ ";\r\n";
+                con += "var transitions = new List<Transition>();\r\n";
+                foreach (var item in auto.transitionsList)
+                {
+                    string re = Convert.ToString(Convert.ToChar(34));
+                    var simbol = item.Simbol.Replace(re, Convert.ToChar(34) + "+Convert.ToChar(34)+" + Convert.ToChar(34));
+                    var status = item.Status;
+
+                    con += "transitions.Add(new Transition("+ Convert.ToChar(34)+simbol + Convert.ToChar(34) + ","+status+ "));\r\n";
+                }
+
+                content = content + "case " + (object)auto.current + ": { "+con+"\r\n} break; \r\n";
+
+            }
+            return Generator.generate(content,dictionary);
+        }
+        private string generateDictionarys()
+        {
+
+            string dictionary = "static Dictionary<int, string> diccionarioTokensActions = new Dictionary<int, string>(); \r\npublic void llenarTokensActions(){";
+            foreach (var item in GrammarChecker.dictionaryTokensActions)
+            {
+                string re = Convert.ToString(Convert.ToChar(34));
+                var aux = item.Value.Replace(re, Convert.ToChar(34) + "+Convert.ToChar(34)+" + Convert.ToChar(34));
+                string element = "diccionarioTokensActions.Add(" + item.Key+","+ Convert.ToChar(34) + aux+ Convert.ToChar(34) + "); \r\n";
+                dictionary += element;
+            }
+            dictionary += "}\r\nstatic Dictionary<string, string> diccionarioSets = new Dictionary<string, string>(); \r\npublic void llenarSets(){"; ;
+            foreach (var item in GrammarChecker.dictionarySets)
+            {
+                string re = Convert.ToString(Convert.ToChar(34));
+                var aux = item.Value.Replace(re, Convert.ToChar(34) + "+Convert.ToChar(34)+" + Convert.ToChar(34));
+                string element = "diccionarioSets.Add(" + item.Key + "," + Convert.ToChar(34) + aux + Convert.ToChar(34) + "); \r\n";
+                dictionary += element;
+            }
+            return dictionary + "}";
+        }
         private void generateAutomat()
         {
             for (int i = 0; i < this.dgvStatus.Rows.Count; i++)
@@ -225,7 +277,7 @@ namespace PROYECTO_LFA_1251518
             simbol.strSimbol = "#";
             simbol.intNumber = this.treeGenerator.simbolLst.Count + 1;
             this.treeGenerator.simbolLst.Add(simbol);
-            this.acceptationStatus = this.treeGenerator.simbolLst.Count + 1;
+            this.acceptationStatus = this.treeGenerator.simbolLst.Count;
             bool continueFlg = true;
             while (continueFlg)
             {
