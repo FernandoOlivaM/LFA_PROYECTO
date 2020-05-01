@@ -71,50 +71,49 @@ namespace PROYECTO_LFA_1251518
                     writer.Write(System.Text.Encoding.Unicode.GetBytes(this.codeGenerator()));
                 }
             }
+            int num = (int)MessageBox.Show("El programa se generó correctamente", "Correcto !", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+
+
         }
         private string codeGenerator()
         {
             var content = string.Empty;
             var dictionary = generateDictionarys();
-            AutomatStatus estado = new AutomatStatus();
-            
-
-            var automata = string.Empty;
-
+            var function = generateFunction();
             foreach (AutomatStatus auto in this.automat)
-            {
-                estado.acceptation = auto.acceptation;
-                estado.current = auto.current;
-                estado.token = auto.token;
-                foreach (var item in auto.transitionsList)
-                {
-                    estado.transitionsList.Add(new Transition(item.Simbol, item.Status));
-                }
-                //automat.Add(estado);
-                var transitions = new List<Transition>();
-                transitions.Add(new Transition("sim", 2));
-                var con = string.Empty;
-                con = "bool acceptation =" + Convert.ToString(auto.acceptation).ToLower() + ";\r\naceptado=acceptation;\r\n";
-                con += "int current =" + Convert.ToString(auto.current)+ ";\r\n";
-                con += "var transitions = new List<Transition>();\r\n";
+            {               
+                var auxContent = string.Empty;
+                auxContent += "bool acceptation =" + Convert.ToString(auto.acceptation).ToLower() + ";\r\naceptado=acceptation;\r\nvar transitions = new List<Transition>();\r\n"; 
                 foreach (var item in auto.transitionsList)
                 {
                     string re = Convert.ToString(Convert.ToChar(34));
                     var simbol = item.Simbol.Replace(re, Convert.ToChar(34) + "+Convert.ToChar(34)+" + Convert.ToChar(34));
                     var status = item.Status;
-
-                    con += "transitions.Add(new Transition("+ Convert.ToChar(34)+simbol + Convert.ToChar(34) + ","+status+ "));\r\n";
+                    auxContent += "transitions.Add(new Transition("+ Convert.ToChar(34)+simbol + Convert.ToChar(34) + ","+status+ "));\r\n";
                 }
-
-                content = content + "case " + (object)auto.current + ": { "+con+"\r\n} break; \r\n";
+                auxContent += "foreach (var item in transitions)\r\n{\r\nif (item.Simbol.Replace(" + Convert.ToChar(34) + "'" + Convert.ToChar(34) + "," + Convert.ToChar(34) + Convert.ToChar(34)+ ") == token)";
+                auxContent += "\r\n{\r\nestado = item.Status - 1;\r\ntkn.Add(token);\r\n}\r\nelse if (buscarEnSets(token) == item.Simbol.Replace("+ Convert.ToChar(34) + "'" + Convert.ToChar(34) + "," + Convert.ToChar(34) + Convert.ToChar(34) + "))";
+                auxContent += "\r\n{\r\nestado = item.Status - 1;\r\ntkn.Add(buscarEnSets(token));\r\n}\r\n}\r\n";
+                content = content + "case " + (object)auto.current + ": { "+auxContent+"\r\n} break; \r\n";
 
             }
             return Generator.generate(content,dictionary);
         }
+        private string generateFunction() 
+        {
+            var function = "public string buscarEnSets(string token)\r\n{\r\nforeach (var item in diccionarioSets)\r\n{\r\n";
+            function += "var aux = item.Value.Replace(" + Convert.ToChar(34) + "'" + Convert.ToChar(34) + ", " + Convert.ToChar(34) + Convert.ToChar(34) + ").Replace(" + Convert.ToChar(34) + ".." + Convert.ToChar(34) + ", " + Convert.ToChar(34) + "-" + Convert.ToChar(34) + "); ";
+            function += "\r\nstring[] aux2 = aux.Split('+');\r\nfor (int i = 0; i < aux2.Count(); i++)\r\n{\r\n";
+            function += "if (aux2[i].Contains(" + Convert.ToChar(34) + "-" + Convert.ToChar(34) + "))\r\n{\r\nint min = aux2[i][0];\r\nint max = aux2[i][2]; ";
+            function += "if((int)Convert.ToChar(token) > min-1 && (int)Convert.ToChar(token) < max+1)\r\n{\r\nvar value = diccionarioSets.FirstOrDefault(x => x.Value == item.Value).Key;\r\nreturn value;\r\n}\r\n}\r\n";
+            function += "else if (aux2[i].Length == 1)\r\n{\r\nif ((int)Convert.ToChar(token) == Convert.ToChar(aux2[i]))\r\n{\r\nvar value = diccionarioSets.FirstOrDefault(x => x.Value == item.Value).Key;\r\n return value;\r\n}\r\n}\r\n}\r\n";
+            function += "}\r\nreturn " + Convert.ToChar(34) + Convert.ToChar(34) + ";\r\n}\r\n";
+            return function;
+        }
         private string generateDictionarys()
         {
 
-            string dictionary = "static Dictionary<int, string> diccionarioTokensActions = new Dictionary<int, string>(); \r\npublic void llenarTokensActions(){";
+            string dictionary = "static Dictionary<int, string> diccionarioTokensActions = new Dictionary<int, string>();\r\npublic void llenarTokensActions(){\r\ndiccionarioTokensActions.Clear();\r\n";
             foreach (var item in GrammarChecker.dictionaryTokensActions)
             {
                 string re = Convert.ToString(Convert.ToChar(34));
@@ -122,7 +121,7 @@ namespace PROYECTO_LFA_1251518
                 string element = "diccionarioTokensActions.Add(" + item.Key+","+ Convert.ToChar(34) + aux+ Convert.ToChar(34) + "); \r\n";
                 dictionary += element;
             }
-            dictionary += "}\r\nstatic Dictionary<string, string> diccionarioSets = new Dictionary<string, string>(); \r\npublic void llenarSets(){"; ;
+            dictionary += "}\r\nstatic Dictionary<string, string> diccionarioSets = new Dictionary<string, string>(); \r\npublic void llenarSets(){\r\ndiccionarioSets.Clear();\r\n";
             foreach (var item in GrammarChecker.dictionarySets)
             {
                 string re = Convert.ToString(Convert.ToChar(34));
@@ -130,7 +129,7 @@ namespace PROYECTO_LFA_1251518
                 string element = "diccionarioSets.Add(" + item.Key + "," + Convert.ToChar(34) + aux + Convert.ToChar(34) + "); \r\n";
                 dictionary += element;
             }
-            return dictionary + "}";
+            return dictionary + "}\r\n" + generateFunction();
         }
         private void generateAutomat()
         {
