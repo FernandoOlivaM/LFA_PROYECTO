@@ -85,7 +85,7 @@ namespace PROYECTO_LFA_1251518
                 }
                 else
                 {
-                    int num = (int)MessageBox.Show("Alguna sección no tiene el nombre correcto", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    int num = (int)MessageBox.Show("Se ha proucido un error desconocido, por favor reinicie la aplicación.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }

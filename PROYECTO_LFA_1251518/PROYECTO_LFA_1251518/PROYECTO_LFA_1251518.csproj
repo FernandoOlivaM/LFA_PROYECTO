@@ -46,9 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutomatStatus.cs" />
-    <Compile Include="Generator.cs" />
-    <Compile Include="Transition.cs" />
+    <Compile Include="ProgramGenerator\AutomatStatus.cs" />
+    <Compile Include="ProgramGenerator\Generator.cs" />
+    <Compile Include="ProgramGenerator\Transition.cs" />
     <Compile Include="Tree\BinaryTree.cs" />
     <Compile Include="Display\DrawCircle.cs" />
     <Compile Include="Display\ErrorMessages.cs" />
