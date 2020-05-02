@@ -13,7 +13,7 @@ namespace PROYECTO_LFA_1251518
         private IContainer components = (IContainer)null;
         private IBinaryTree<Node> expTree;
         private TreeGenerator treeGenerator;
-        private int width, height, rows;
+        private int width, height, rows, acceptationStatus=0;
         private List<int>[] listFollows;
         private Panel pnlTable;
         private DataGridView dgvFollow;
@@ -24,11 +24,16 @@ namespace PROYECTO_LFA_1251518
         private NumericUpDown numericUpDown5, numericUpDown6;
         private Panel panel1;
         private Label lblTree, lblRegex, lblFLTitle, lblFollowTitle, lblStatusTitle;
+        private GrammarChecker grammar;
+        private List<AutomatStatus> automat;
+        private Button btnGenerate;
 
-        public TablesForm(TreeGenerator generator, IBinaryTree<Node> tree, int simbols, string regex)
+        public TablesForm(GrammarChecker grammarReceived,TreeGenerator generator, IBinaryTree<Node> tree, int simbols, string regex)
         {
             this.InitializeComponent();
-            this.treeGenerator = generator;            
+            this.treeGenerator = generator;
+            this.grammar = grammarReceived;
+            this.automat = new List<AutomatStatus>();
             this.lblRegex.Text = "Expresión Obtenida: " + regex;
             this.expTree = tree;
             this.rows = 0;
@@ -46,7 +51,137 @@ namespace PROYECTO_LFA_1251518
             this.expTree.postOrder(new TraversalTree<Node>(this.fillFollow));
             this.fillFollowTable();
             this.generateStatusTable();
+            this.generateAutomat();
         }
+        private void btnGenerate_Click(object sender, EventArgs e)
+        {
+            var path = string.Empty;
+            using (var fldrDlg = new FolderBrowserDialog())
+            {
+                if (fldrDlg.ShowDialog() == DialogResult.OK)
+                {
+                    path = fldrDlg.SelectedPath + "\\evaluar.cs";
+                }
+            }
+
+            using (var writeStream = new FileStream(path, FileMode.Truncate))
+            {
+                using (var writer = new BinaryWriter(writeStream))
+                {
+                    writer.Write(System.Text.Encoding.Unicode.GetBytes(this.codeGenerator()));
+                }
+            }
+            int num = (int)MessageBox.Show("El programa se generó correctamente", "Correcto !", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+
+
+        }
+        private string codeGenerator()
+        {
+            var content = string.Empty;
+            var dictionary = generateDictionarys();
+            foreach (AutomatStatus auto in this.automat)
+            {               
+                var auxContent = string.Empty;
+                auxContent += "bool acceptation =" + Convert.ToString(auto.acceptation).ToLower() + ";\r\naceptado=acceptation;\r\nvar transitions = new List<Transition>();\r\n"; 
+                foreach (var item in auto.transitionsList)
+                {
+                    string re = Convert.ToString(Convert.ToChar(34));
+                    var simbol = item.Simbol.Replace(re, Convert.ToChar(34) + "+Convert.ToChar(34)+" + Convert.ToChar(34));
+                    var status = item.Status;
+                    auxContent += "transitions.Add(new Transition("+ Convert.ToChar(34)+simbol + Convert.ToChar(34) + ","+status+ "));\r\n";
+                }
+                auxContent += "foreach (var item in transitions)\r\n{\r\n";
+                auxContent += "if (item.Simbol.Replace(" + Convert.ToChar(34) + "'" + Convert.ToChar(34) + "," + Convert.ToChar(34) + Convert.ToChar(34) + ") == token){";
+                auxContent += "estado = item.Status;\r\ntkn.Add(token);\r\naceptado = acceptation;\r\nenc = true;\r\nbreak;\r\n}\r\n}\r\nif (enc)\r\nbreak;\r\nelse\r\n{\r\nforeach (var item in transitions)\r\n{\r\n";
+                auxContent += "if (item.Simbol.Replace(" + Convert.ToChar(34) + "'" + Convert.ToChar(34) + "," + Convert.ToChar(34) + Convert.ToChar(34) + ") == buscarEnSets(token)){";
+                auxContent += "estado = item.Status;\r\ntkn.Add(buscarEnSets(token));\r\naceptado = acceptation;\r\nbreak;\r\n}\r\n else if (buscarEnSets(token) == " + Convert.ToChar(34) + Convert.ToChar(34) + ")\r\n {\r\naceptado = false;\r\nbreak;\r\n}\r\nelse { aceptado = false; }\r\n}\r\n";
+                content += "case " + (object)auto.current + ": { "+auxContent+"\r\n} break; \r\n}\r\n";
+
+            }
+            return Generator.generate(content,dictionary);
+        }
+        
+
+        private string generateDictionarys()
+        {
+
+            string dictionary = "static Dictionary<int, string> diccionarioTokensActions = new Dictionary<int, string>();\r\npublic void llenarTokensActions(){\r\ndiccionarioTokensActions.Clear();\r\n";
+            foreach (var item in GrammarChecker.dictionaryTokensActions)
+            {
+                string re = Convert.ToString(Convert.ToChar(34));
+                var aux = item.Value.Replace(re, Convert.ToChar(34) + "+Convert.ToChar(34)+" + Convert.ToChar(34));
+                string element = "diccionarioTokensActions.Add(" + item.Key+","+ Convert.ToChar(34) + aux+ Convert.ToChar(34) + "); \r\n";
+                dictionary += element;
+            }
+            dictionary += "}\r\nstatic Dictionary<string, string> diccionarioSets = new Dictionary<string, string>(); \r\npublic void llenarSets(){\r\ndiccionarioSets.Clear();\r\n";
+            foreach (var item in GrammarChecker.dictionarySets)
+            {
+                string re = Convert.ToString(Convert.ToChar(34));
+                var aux = item.Value.Replace(re, Convert.ToChar(34) + "+Convert.ToChar(34)+" + Convert.ToChar(34));
+                string element = "diccionarioSets.Add(" + item.Key + "," + Convert.ToChar(34) + aux + Convert.ToChar(34) + "); \r\n";
+                dictionary += element;
+            }
+            return dictionary + "}\r\n";
+        }
+        private void generateAutomat()
+        {
+            for (int i = 0; i < this.dgvStatus.Rows.Count; i++)
+            {
+                AutomatStatus Status = new AutomatStatus();
+                Status.current = i;
+                Status.acceptation = this.isAcceptationStatus(this.dgvStatus.Rows[i].Cells[0].Value.ToString());
+                for (int j = 1; j < this.dgvStatus.Columns.Count; j++)
+                {
+                    var header = this.dgvStatus.Columns[j].HeaderText;
+                    var statusToFind = this.dgvStatus.Rows[i].Cells[j].Value.ToString();
+                    if (!statusToFind.Equals(" null "))
+                        Status.transitionsList.Add(new Transition(header, this.findStatus(statusToFind)));
+                }
+                this.automat.Add(Status);
+            }
+            foreach (Simbol simbolList in this.treeGenerator.simbolLst)
+            {
+                Ranges range = new Ranges();
+                if (!this.existsInRanges(simbolList.strSimbol) && !simbolList.strSimbol.Contains("#"))
+                {
+                    range.simbol = simbolList.strSimbol;
+                    this.grammar.isBasic(simbolList.strSimbol, range, false, false);
+                    this.grammar.ranges.Add(range);
+                }
+            }
+        }
+
+        private bool existsInRanges(string simbol)
+        {
+            foreach (Ranges range in this.grammar.ranges)
+            {
+                if (range.simbol.Equals(simbol))
+                    return true;
+            }
+            return false;
+        }
+
+        private bool isAcceptationStatus(string status)
+        {
+            char[] chArray = new char[1] { ',' };
+            foreach (var item in status.Split(chArray))
+            {
+                if (this.acceptationStatus == Convert.ToInt32(item))
+                    return true;
+            }
+            return false;
+        }
+
+        private int findStatus(string status)
+        {
+            for (int i = 0; i < this.dgvStatus.Rows.Count; i++)
+            {
+                if (status.Equals(this.dgvStatus.Rows[i].Cells[0].Value.ToString()))
+                    return i;
+            }
+            return -1;
+        }
+
 
         private void fillTableFirstLast(IBinaryTree<Node> tree)
         {
@@ -133,6 +268,7 @@ namespace PROYECTO_LFA_1251518
             simbol.strSimbol = "#";
             simbol.intNumber = this.treeGenerator.simbolLst.Count + 1;
             this.treeGenerator.simbolLst.Add(simbol);
+            this.acceptationStatus = this.treeGenerator.simbolLst.Count;
             bool continueFlg = true;
             while (continueFlg)
             {
@@ -287,6 +423,7 @@ namespace PROYECTO_LFA_1251518
 
         private void InitializeComponent()
         {
+           
             this.components = (IContainer)new Container();
             this.pnlTable = new Panel();
             this.dgvStatus = new DataGridView();
@@ -310,6 +447,15 @@ namespace PROYECTO_LFA_1251518
             this.lblStatusTitle = new Label();
             this.panel1 = new Panel();
             this.pnlTable.SuspendLayout();
+
+            this.btnGenerate = new Button(); this.btnGenerate.Location = new Point(900, 0);
+            this.btnGenerate.Name = "btnGenerate";
+            this.btnGenerate.Size = new Size(130, 22);
+            this.btnGenerate.Text = "Generar Programa";
+            this.btnGenerate.UseVisualStyleBackColor = true;
+            this.btnGenerate.Click += new EventHandler(this.btnGenerate_Click);
+            this.Controls.Add((Control)this.btnGenerate);
+
             ((ISupportInitialize)this.dgvStatus).BeginInit();
             ((ISupportInitialize)this.dgvFollow).BeginInit();
             this.numericUpDown6.BeginInit();
@@ -379,13 +525,13 @@ namespace PROYECTO_LFA_1251518
             this.clmnFollow.Name = "clmnFollow";
             this.clmnFollow.ReadOnly = true;
             this.numericUpDown6.Location = new Point(651, 108);
-            this.numericUpDown6.Maximum = new Decimal(new int[4]{10000,0,0,0});
+            this.numericUpDown6.Maximum = new Decimal(new int[4] { 10000, 0, 0, 0 });
             this.numericUpDown6.Name = "numericUpDown6";
             this.numericUpDown6.Size = new Size(48, 20);
             this.numericUpDown6.TabIndex = 21;
             this.numericUpDown6.ValueChanged += new EventHandler(this.numericUpDown6_ValueChanged);
             this.numericUpDown5.Location = new Point(651, 82);
-            this.numericUpDown5.Maximum = new Decimal(new int[4]{10000,0,0,0});
+            this.numericUpDown5.Maximum = new Decimal(new int[4] { 10000, 0, 0, 0 });
             this.numericUpDown5.Name = "numericUpDown5";
             this.numericUpDown5.Size = new Size(48, 20);
             this.numericUpDown5.TabIndex = 20;

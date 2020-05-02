@@ -8,7 +8,10 @@ using System.Threading.Tasks;
 namespace PROYECTO_LFA_1251518
 {
     public class GrammarChecker
-    {        
+    {
+        public static Dictionary<int, string> dictionaryTokensActions = new Dictionary<int, string>();
+        public static Dictionary<string, string> dictionarySets = new Dictionary<string, string>();
+
         private string spectedWord, lastWord;
         private int row, column;
         private int setCount, tokenCount, actionCount, errorCount;
@@ -41,7 +44,6 @@ namespace PROYECTO_LFA_1251518
             this.buildTree(this.regex);
             return true;
         }
-
         public void buildTree(Queue<string> tokens)
         {
             var regex = string.Empty;
@@ -49,7 +51,7 @@ namespace PROYECTO_LFA_1251518
                 regex = regex + tokens.Dequeue() + " ";
             this.tree = new TreeGenerator();
             this.tree.generate(regex);
-            int num = (int)new TablesForm(this.tree, this.tree.expTree, this.tree.simbolQuantity, regex).ShowDialog();
+            int num = (int)new TablesForm(this, this.tree, this.tree.expTree, this.tree.simbolQuantity, regex).ShowDialog();
 
         }
         private void checkSets(string[] file)
@@ -168,6 +170,7 @@ namespace PROYECTO_LFA_1251518
                 input.Trim();
                 if (!Regex.IsMatch(input, "^=(\\s)*(\\d)+$", RegexOptions.Compiled))
                     throw new Exception("2|" + (object)this.row + "|" + (object)this.column);
+                
                 this.errorCount++;
                 this.correctErrors(file);
             }
@@ -197,6 +200,8 @@ namespace PROYECTO_LFA_1251518
         }
         private void correctActions(string[] file)
         {
+            var key = string.Empty; 
+            var value = string.Empty;
             if (this.lastWord == null)
             {
                 if (this.actionCount == 0)
@@ -241,6 +246,7 @@ namespace PROYECTO_LFA_1251518
                             {
                                 do
                                 {
+                                    key = this.lastWord;
                                     this.lastWord = this.getWord(file);
                                     if (this.lastWord == null)
                                         throw new Exception("6|" + (object)this.row + "|" + (object)this.column);
@@ -251,6 +257,7 @@ namespace PROYECTO_LFA_1251518
                                     do
                                     {
                                         this.lastWord = this.getWord(file);
+                                        value = this.lastWord;
                                         if (this.lastWord == null)
                                             throw new Exception("5|" + (object)this.row + "|" + (object)this.column);
                                     }
@@ -276,6 +283,8 @@ namespace PROYECTO_LFA_1251518
                             else if (!Regex.IsMatch(this.lastWord, "^(\\d)+='(\\w)+'$", RegexOptions.Compiled))
                                 throw new Exception("3|" + (object)this.row + "|" + (object)this.column);
                         }
+                        if (!dictionaryTokensActions.ContainsKey(Convert.ToInt32(key)))
+                            dictionaryTokensActions.Add(Convert.ToInt32(key), value);
                     }
                     this.lastWord = this.getWord(file);
                     this.actionCount++;
@@ -321,6 +330,7 @@ namespace PROYECTO_LFA_1251518
                                             {
                                                 if (!this.tokenList.Contains(Convert.ToInt32(rows)))
                                                 {
+                                                    dictionaryTokensActions.Add(Convert.ToInt32(rows), fileRow.Substring(fileRow.IndexOf('=')+1));
                                                     this.tokenList.Add(Convert.ToInt32(rows));
                                                     this.column++;
                                                     break;
@@ -336,6 +346,7 @@ namespace PROYECTO_LFA_1251518
                                 if (rows.Length > 0)
                                     status1 = true;
                             }
+                            //
                             this.column++;
                             if (this.column >= file[this.row].Length)
                             {
@@ -668,6 +679,12 @@ namespace PROYECTO_LFA_1251518
                         if (!this.lastWord.Equals(""))
                             setQueue.Enqueue(this.lastWord);
                     }
+                    var valueSet = string.Empty;
+                    foreach (var item in setQueue)
+                    {
+                        valueSet += item;
+                    }
+                    dictionarySets.Add(Convert.ToChar(34)+(valueSet.Substring(0, valueSet.IndexOf("=")))+ Convert.ToChar(34), (valueSet.Substring(valueSet.IndexOf("=")+1)));
                     this.checkSetExpression(setQueue);
                     this.setCount++;
                     this.correctSet(file);
